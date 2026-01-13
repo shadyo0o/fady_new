@@ -1,0 +1,140 @@
+:root {
+  /* Brand Colors - Child Friendly & Calm */
+  --primary: #4A90E2;
+  /* Soft Blue */
+  --primary-light: #E3F2FD;
+  --secondary: #81C784;
+  /* Mint Green */
+  --accent: #FFD54F;
+  /* Warm Yellow */
+  --accent-soft: #FFF8E1;
+  --danger: #E57373;
+  /* Soft Red */
+
+  /* Text & Backgrounds */
+  --bg-main: #FDFDFD;
+  --bg-card: #FFFFFF;
+  --text-main: #2C3E50;
+  --text-muted: #607D8B;
+
+  /* UI Elements */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --bs-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --bs-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Landing Page Gradients */
+.gradient-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, #64B5F6 100%);
+  color: white;
+}
+
+.gradient-primary {
+  background: linear-gradient(90deg, var(--primary) 0%, #42A5F5 100%);
+  color: white;
+  border: none;
+}
+
+.text-muted-foreground {
+  color: var(--text-muted);
+}
+
+.text-primary-foreground {
+  color: white;
+}
+
+.bg-background {
+  background-color: var(--bg-main);
+}
+
+/* Story Page Utilities */
+.gradient-warm {
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+}
+
+.shadow-elevated {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.text-accent-foreground {
+  color: var(--accent);
+}
+
+/* Success variants for Charity Info */
+.bg-success-soft {
+  background-color: rgba(129, 199, 132, 0.1);
+}
+
+.border-success-soft {
+  border-color: rgba(129, 199, 132, 0.2);
+}
+
+.bg-success-icon {
+  background-color: rgba(129, 199, 132, 0.2);
+}
+
+.text-success {
+  color: var(--secondary);
+}
+
+/* UI Components Utilities */
+.bg-success {
+  background-color: var(--secondary);
+}
+
+.text-success-foreground {
+  color: white;
+}
+
+.bg-destructive {
+  background-color: var(--danger);
+}
+
+.text-destructive-foreground {
+  color: white;
+}
+
+.bg-card {
+  background-color: var(--bg-card);
+}
+
+.border-border {
+  border-color: #e2e8f0;
+}
+
+.shadow-card {
+  box-shadow: var(--bs-sm);
+}
+
+.bg-muted {
+  background-color: #f1f5f9;
+}
+
+.text-muted-foreground {
+  color: #64748b;
+}
+
+/* Destructive variants for Heart icon */
+.text-destructive {
+  color: var(--danger);
+}
