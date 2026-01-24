@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ArrowLeft, Calendar, FileText, Check, ArrowRight, AlertTriangle } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -9,7 +9,7 @@ import MobileLayout from "@/components/layout/MobileLayout";
 import api from "@/lib/api/client";
 import { showToast } from "@/lib/toast";
 
-const VaccineRecord = () => {
+const VaccineRecordContent = () => {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -228,6 +228,23 @@ const VaccineRecord = () => {
       </div>
     </MobileLayout>
   );
+};
+
+const VaccineRecord = () => {
+    return (
+        <Suspense fallback={
+            <MobileLayout hideBottomNav>
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="w-10 h-10 border-4 border-[#33AB98]/20 border-t-[#33AB98] rounded-full animate-spin"></div>
+                        <p className="text-gray-500 font-medium">جاري التحميل...</p>
+                    </div>
+                </div>
+            </MobileLayout>
+        }>
+            <VaccineRecordContent />
+        </Suspense>
+    );
 };
 
 export default VaccineRecord;

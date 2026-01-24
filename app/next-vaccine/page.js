@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Calendar, MapPin, FileText, Lightbulb, AlertCircle, CheckCircle, Baby } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import api from "@/lib/api/client";
 
-const NextVaccinePage = () => {
+const NextVaccinePageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const childId = searchParams.get('childId');
@@ -271,6 +271,23 @@ const NextVaccinePage = () => {
         </div>
       </div>
     </MobileLayout>
+  );
+};
+
+const NextVaccinePage = () => {
+  return (
+    <Suspense fallback={
+      <MobileLayout hideBottomNav>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-[#33AB98]/20 border-t-[#33AB98] rounded-full animate-spin"></div>
+            <p className="text-gray-500 font-medium">جاري التحميل...</p>
+          </div>
+        </div>
+      </MobileLayout>
+    }>
+      <NextVaccinePageContent />
+    </Suspense>
   );
 };
 
