@@ -1,22 +1,43 @@
 'use client';
 
-import { useState } from "react";
-import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MobileLayout from "@/components/layout/MobileLayout";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Switch } from "@/components/ui/Switch";
 import { useAuth } from "@/contexts/AuthContext";
+import api from "@/lib/api/client";
 
 const ProfilePage = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [notifications, setNotifications] = useState({
     push: true,
-    sms: false,
-    email: true,
   });
+  
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoadingProfile(true);
+      try {
+        const r1 = await api.get('/users/profile');
+        setProfile(r1.data?.user || r1.data?.data || r1.data || null);
+      } catch (e1) {
+        try {
+          const r2 = await api.get('/profile');
+          setProfile(r2.data?.user || r2.data?.data || r2.data || null);
+        } catch (e2) {
+          setProfile(null);
+        }
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const menuItems = [
     {
@@ -37,7 +58,7 @@ const ProfilePage = () => {
     <MobileLayout dir="rtl">
       <div className="min-h-screen pb-24 bg-white">
         {/* Header - Classic Medical */}
-        <div className="bg-[#4A90E2] pt-12 pb-16 px-5 relative overflow-hidden">
+        <div className="bg-[#33AB98] pt-12 pb-16 px-5 relative overflow-hidden">
             {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 blur-xl" />
@@ -58,14 +79,14 @@ const ProfilePage = () => {
           {/* Profile Info */}
           <div className="flex flex-col items-center relative z-10 text-center">
             <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-xl border-4 border-white/20">
-              <User className="w-10 h-10 text-[#4A90E2]" />
+              <User className="w-10 h-10 text-[#33AB98]" />
             </div>
             <h2 className="text-xl font-bold text-white mb-1">
-              {user?.name || "سارة أحمد"}
+              {profile?.name || user?.name || "سارة أحمد"}
             </h2>
             <div className="flex items-center gap-1 text-blue-100 text-sm opacity-90">
                 <Mail className="w-3.5 h-3.5" />
-                <span>{user?.email || "sarah.ahmed@email.com"}</span>
+                <span>{profile?.email || user?.email || "sarah.ahmed@email.com"}</span>
             </div>
           </div>
         </div>
@@ -81,10 +102,10 @@ const ProfilePage = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-800 text-sm">
-                    عضو مميز
+                    {profile?.isSubscribed ? "عضو مميز" : "الخطة المجانية"}
                   </h3>
                   <p className="text-xs text-orange-600 font-medium">
-                    صالح حتى ديسمبر 2025
+                    {profile?.subscriptionEndDate ? new Date(profile.subscriptionEndDate).toLocaleDateString('ar-EG') : "اشترك لتحصل على المزايا"}
                   </p>
                 </div>
               </div>
@@ -92,65 +113,62 @@ const ProfilePage = () => {
             </div>
           </Link>
 
-          {/* Notification Settings */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
+                <User className="w-4 h-4 text-[#33AB98]" />
+              </div>
+              <h3 className="font-bold text-gray-800 text-sm">بيانات الحساب</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">الاسم</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.name || "-"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">البريد</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.email || "-"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">الهاتف</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.phone || "-"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">النوع</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.gender === 'male' ? 'ذكر' : profile?.gender === 'female' ? 'أنثى' : '-'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">مزود الدخول</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.provider === 'google' ? 'Google' : 'النظام'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">حالة التفعيل</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.confirmed ? 'مفعل' : 'غير مفعل'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">آخر رقم معاملة</span>
+                <span className="text-sm font-medium text-gray-800">{profile?.lastTransactionId || '-'}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
-                <Bell className="w-4 h-4 text-[#4A90E2]" />
+                <Bell className="w-4 h-4 text-[#33AB98]" />
               </div>
               <h3 className="font-bold text-gray-800 text-sm">إعدادات التنبيهات</h3>
             </div>
-
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-gray-800 text-sm">
-                    تنبيهات التطبيق
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    تذكيرات التطعيمات المجدولة
-                  </p>
+                  <p className="font-bold text-gray-800 text-sm">تنبيهات التطبيق</p>
+                  <p className="text-xs text-gray-500 mt-0.5">تذكيرات التطعيمات المجدولة</p>
                 </div>
                 <Switch
                   checked={notifications.push}
                   onCheckedChange={(checked) =>
                     setNotifications((prev) => ({ ...prev, push: checked }))
-                  }
-                />
-              </div>
-
-              <div className="h-px bg-gray-50" />
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-gray-800 text-sm">رسائل القصيرة (SMS)</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    تحديثات فورية عبر الهاتف
-                  </p>
-                </div>
-                <Switch
-                  checked={notifications.sms}
-                  onCheckedChange={(checked) =>
-                    setNotifications((prev) => ({ ...prev, sms: checked }))
-                  }
-                />
-              </div>
-
-              <div className="h-px bg-gray-50" />
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-gray-800 text-sm">
-                    رسائل البريد الإلكتروني
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    تقارير دورية ونصائح صحية
-                  </p>
-                </div>
-                <Switch
-                  checked={notifications.email}
-                  onCheckedChange={(checked) =>
-                    setNotifications((prev) => ({ ...prev, email: checked }))
                   }
                 />
               </div>

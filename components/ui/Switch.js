@@ -12,8 +12,8 @@ const Switch = React.forwardRef(({ className, checked, onCheckedChange, ...props
     ref={ref}
     onClick={() => onCheckedChange?.(!checked)}
     className={cn(
-      "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A90E2] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      checked ? "bg-[#4A90E2]" : "bg-gray-200",
+      "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#33AB98] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+      checked ? "bg-[#33AB98]" : "bg-gray-200",
       className
     )}
     {...props}

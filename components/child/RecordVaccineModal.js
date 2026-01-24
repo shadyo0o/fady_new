@@ -6,6 +6,7 @@ import Input from '@/components/ui/Input';
 import { HEALTH_OFFICES } from '@/lib/constants';
 import api from '@/lib/api/client';
 import { X } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 
 export default function RecordVaccineModal({ isOpen, onClose, childId, scheduleId, vaccineName, onSuccess }) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -24,11 +25,13 @@ export default function RecordVaccineModal({ isOpen, onClose, childId, scheduleI
         actualDate: date,
         office
       });
+      showToast.success('تم تسجيل التطعيم بنجاح ✅');
       onSuccess();
       onClose();
     } catch (error) {
       console.error(error);
-      alert('فشل تسجيل التطعيم');
+      const errorMessage = error.response?.data?.message || 'فشل تسجيل التطعيم';
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -43,7 +46,7 @@ export default function RecordVaccineModal({ isOpen, onClose, childId, scheduleI
         </div>
         
         <p className="text-sm text-gray-500 mb-4">
-            أنت تقوم بتسجيل: <span className="font-bold text-[#4A90E2]">{vaccineName}</span>
+            أنت تقوم بتسجيل: <span className="font-bold text-[#33AB98]">{vaccineName}</span>
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +61,7 @@ export default function RecordVaccineModal({ isOpen, onClose, childId, scheduleI
             <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">تم في مكتب:</label>
                 <select 
-                   className="p-3 border-2 border-gray-200 rounded-lg bg-white outline-none focus:border-[#4A90E2]"
+                   className="p-3 border-2 border-gray-200 rounded-lg bg-white outline-none focus:border-[#33AB98]"
                    value={office}
                    onChange={(e) => setOffice(e.target.value)}
                 >

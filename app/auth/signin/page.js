@@ -32,9 +32,9 @@ const SigninPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
       {/* Header - Classic Medical */}
-      <div className="bg-[#4A90E2] pt-14 pb-12 px-6 text-center">
+      <div className="bg-[#33AB98] pt-14 pb-12 px-6 text-center">
         <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
-          <Stethoscope className="w-8 h-8 text-[#4A90E2]" />
+          <Stethoscope className="w-8 h-8 text-[#33AB98]" />
         </div>
         <h1 className="text-xl font-semibold text-white">
           مرحباً بعودتك
@@ -63,7 +63,7 @@ const SigninPage = () => {
             <input
               type="email"
               placeholder="البريد الإلكتروني"
-              className="w-full pr-10 pl-4 h-12 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-10 pl-4 h-12 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
@@ -77,7 +77,7 @@ const SigninPage = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="كلمة المرور"
-              className="w-full pr-10 pl-10 h-12 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-10 pl-10 h-12 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
@@ -100,7 +100,7 @@ const SigninPage = () => {
           <div className="text-left">
             <Link
               href="/auth/forgot-password"
-              className="text-sm text-[#4A90E2] font-medium hover:underline"
+              className="text-sm text-[#33AB98] font-medium hover:underline"
             >
               نسيت كلمة المرور؟
             </Link>
@@ -108,7 +108,7 @@ const SigninPage = () => {
 
           <Button
             type="submit"
-            className="w-full h-12 rounded-lg text-sm font-semibold bg-[#4A90E2] hover:bg-[#357ABD] transition-colors mt-2 flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-lg text-sm font-semibold bg-[#33AB98] hover:bg-[#357ABD] transition-colors mt-2 flex items-center justify-center gap-2"
             disabled={loading}
           >
             {loading ? (
@@ -159,7 +159,7 @@ const SigninPage = () => {
         {/* Sign Up Link */}
         <p className="text-center text-sm text-gray-500 mt-5">
           ليس لديك حساب؟{" "}
-          <Link href="/auth/signup" className="text-[#4A90E2] font-semibold hover:underline">
+          <Link href="/auth/signup" className="text-[#33AB98] font-semibold hover:underline">
             إنشاء حساب
           </Link>
         </p>

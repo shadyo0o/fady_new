@@ -18,14 +18,14 @@
 
 /* Variants */
 .primary {
-    background: linear-gradient(135deg, var(--primary), #2980b9);
+    background: linear-gradient(135deg, var(--primary), #2d9685);
     color: white;
-    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+    box-shadow: 0 4px 10px rgba(51, 171, 152, 0.3);
 }
 
 .primary:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(74, 144, 226, 0.4);
+    box-shadow: 0 6px 14px rgba(51, 171, 152, 0.4);
 }
 
 .secondary {

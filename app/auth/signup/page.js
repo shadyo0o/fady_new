@@ -44,21 +44,27 @@ const SignupPage = () => {
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
       {/* Header */}
       <div className="gradient-hero pt-12 pb-16 px-6 text-center">
-        <div className="w-20 h-20 bg-white/20 rounded-2xl mx-auto flex items-center justify-center mb-4 text-white">
+        {/* <div className="w-20 h-20 bg-white/20 rounded-2xl mx-auto flex items-center justify-center mb-4 text-white">
           <span className="text-3xl">💉</span>
-        </div>
+        </div> */}
+                    <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
+              <img 
+                src="/logo.png" 
+                alt="Fady" 
+                className='w-full h-full object-cover' 
+              />
+            </div>
         <h1 className="text-2xl font-bold text-white">
           فادي
         </h1>
         <p className="text-blue-50 text-sm mt-1">
-          مسار التطعيم والولادة
-        </p>
+رفيقك من لحظة الولادة.        </p>
       </div>
 
       {/* Form */}
       <div className="flex-1 bg-white -mt-8 rounded-t-[2rem] px-6 pt-8 pb-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] relative z-10">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
-          إنشاء حساب
+         إنشاء حساب (القائم بالتسجيل الاب او الام) 
         </h2>
         <p className="text-gray-500 text-sm mb-6">
           ابدأ رحلة تطعيم طفلك
@@ -76,7 +82,7 @@ const SignupPage = () => {
             <input
               type="text"
               placeholder="الاسم الكامل"
-              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -88,7 +94,7 @@ const SignupPage = () => {
             <input
               type="email"
               placeholder="البريد الإلكتروني"
-              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
@@ -100,7 +106,7 @@ const SignupPage = () => {
             <input
               type="tel"
               placeholder="رقم الهاتف"
-              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
@@ -112,7 +118,7 @@ const SignupPage = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="كلمة المرور"
-              className="w-full pr-12 pl-12 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-12 pl-12 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
@@ -131,7 +137,7 @@ const SignupPage = () => {
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="تأكيد كلمة المرور"
-              className="w-full pr-12 pl-12 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none"
+              className="w-full pr-12 pl-12 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.cPassword}
               onChange={(e) => setFormData({ ...formData, cPassword: e.target.value })}
               required
@@ -147,7 +153,7 @@ const SignupPage = () => {
 
            <div className="relative">
              <select 
-               className="w-full pr-4 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#4A90E2] transition-all outline-none appearance-none"
+               className="w-full pr-4 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none appearance-none"
                value={formData.gender}
                onChange={(e) => setFormData({...formData, gender: e.target.value})}
              >
@@ -209,7 +215,7 @@ const SignupPage = () => {
         {/* Sign In Link */}
         <p className="text-center text-sm text-gray-500 mt-6">
           لديك حساب بالفعل؟{" "}
-          <Link href="/auth/signin" className="text-[#4A90E2] font-semibold hover:underline">
+          <Link href="/auth/signin" className="text-[#33AB98] font-semibold hover:underline">
             تسجيل الدخول
           </Link>
         </p>

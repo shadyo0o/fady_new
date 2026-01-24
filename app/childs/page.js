@@ -3,29 +3,86 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api/client';
 import Link from 'next/link';
-import { Baby, Plus, Calendar } from 'lucide-react';
+import { Baby, Plus } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { useChild } from '@/contexts/ChildContext';
+import { ChildCard } from '@/components/cards/ChildCard';
 
 export default function ChildListPage() {
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { selectedChild, selectChild } = useChild();
 
   useEffect(() => {
     fetchChildren();
+
+    // Refresh data when page becomes visible (e.g., after navigating back)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchChildren();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const fetchChildren = async () => {
     try {
-      const { data } = await api.get('/childs/getall');
-      if (Array.isArray(data)) {
-        setChildren(data);
+      const response = await api.get('/childs/getall');
+      const data = response.data;
+      
+      // Handle the nested structure from API response
+      let childrenList = [];
+      if (data && Array.isArray(data.child)) {
+         childrenList = data.child;
       } else if (data && Array.isArray(data.childs)) {
-         setChildren(data.childs);
+         childrenList = data.childs;
+      } else if (Array.isArray(data)) {
+        childrenList = data;
       } else if (data && Array.isArray(data.data)) {
-         setChildren(data.data);
-      } else {
-        setChildren([]);
+         childrenList = data.data;
       }
+
+      // Fetch vaccine data for each child to calculate progress
+      const childrenWithProgress = await Promise.all(
+        childrenList.map(async (child) => {
+          try {
+            const childId = child.id || child._id;
+            // Use the same endpoint format as the detail page
+            const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
+            const vaccineData = vaccineResponse.data;
+            
+            // Extract data using the same structure as detail page
+            const res = vaccineData?.results || vaccineData || {};
+            const takenCount = res.taken?.length || 0;
+            const overdueCount = res.overdue?.length || 0;
+            const upcomingCount = res.upcoming?.length || 0;
+            const nextCount = res.nextVaccine ? 1 : 0;
+            
+            const totalVaccines = takenCount + overdueCount + upcomingCount + nextCount;
+            const completedVaccines = takenCount;
+
+            return {
+              ...child,
+              totalVaccines,
+              completedVaccines
+            };
+          } catch (error) {
+            console.error(`Failed to fetch vaccines for child ${child.id || child._id}`, error);
+            return {
+              ...child,
+              totalVaccines: 0,
+              completedVaccines: 0
+            };
+          }
+        })
+      );
+
+      setChildren(childrenWithProgress);
     } catch (error) {
       console.error("Failed to fetch children", error);
       setChildren([]);
@@ -34,56 +91,70 @@ export default function ChildListPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-500">جاري التحميل...</div>;
+  if (loading) return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-[#33AB98]/20 border-t-[#33AB98] rounded-full animate-spin"></div>
+        <p className="text-gray-500 font-medium">جاري جلب أطفالك...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#2C3E50]">أطفالي</h1>
-        <Link href="/childs/add">
-            <Button size="sm" variant="primary">
-                <Plus size={18} />
-                <span>إضافة طفل</span>
-            </Button>
-        </Link>
+    <div className="animate-fade-in max-w-4xl mx-auto px-4 py-6">
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-[#2C3E50]">
+            أطفالك
+          </h2>
+          <Link
+            href="/childs/add"
+            className="flex items-center gap-1 text-sm font-medium text-[#33AB98]"
+          >
+            <Plus className="w-4 h-4" />
+            إضافة
+          </Link>
+        </div>
+
+        {children.length > 0 ? (
+          <div className="space-y-3">
+            {children.map((child) => (
+              <ChildCard 
+                key={child.id || child._id} 
+                id={child.id || child._id}
+                {...child} 
+                isSelected={selectedChild?.id === (child.id || child._id)}
+                onSelect={selectChild}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F0FDF4] to-white p-8 text-center border border-[#33AB98]/10 shadow-sm">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#33AB98]/10 rounded-full blur-2xl" />
+            <div className="absolute -bottom-14 -right-16 w-52 h-52 bg-[#33AB98]/5 rounded-full blur-2xl" />
+            <div className="w-16 h-16 bg-[#33AB98]/10 rounded-2xl mx-auto flex items-center justify-center mb-4 text-[#33AB98] border border-[#33AB98]/20 relative z-10">
+              <Baby className="w-8 h-8" />
+            </div>
+            <h3 className="font-bold text-[#2C3E50] mb-1 text-base relative z-10">
+              لم تتم إضافة أطفال بعد
+            </h3>
+            <p className="text-sm text-gray-600 mb-6 relative z-10">
+              أضف طفلك لبدء التتبع الذكي لمواعيد التطعيم
+            </p>
+            <Link href="/childs/add" className="relative z-10 inline-block">
+              <Button className="gradient-primary rounded-xl px-8 shadow-lg shadow-[#33AB98]/20 flex items-center gap-2">
+                <Plus className="w-4 h-4 ml-1" />
+                إضافة طفل
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
-      {children.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-            <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-[#4A90E2]">
-                <Baby size={32} />
-            </div>
-            <h3 className="font-bold text-lg mb-2">لا يوجد أطفال مضافين بعد</h3>
-            <p className="text-gray-500 mb-6">قم بإضافة طفلك الأول لمتابعة تطعيماته</p>
-            <Link href="/childs/add">
-                <Button>إضافة طفل الآن</Button>
-            </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {children.map(child => (
-                <Link href={`/childs/${child.id}`} key={child.id} className="block group">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-[#4A90E2]">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${child.gender === 'female' ? 'bg-pink-400' : 'bg-blue-400'}`}>
-                                <Baby size={24} />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-800 group-hover:text-[#4A90E2] transition-colors">{child.name}</h3>
-                                <div className="flex items-center gap-1 text-xs text-gray-500">
-                                    <Calendar size={12} />
-                                    <span>{new Date(child.birthDate).toLocaleDateString('ar-EG')}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-gray-50 p-3 rounded-lg flex items-center justify-between text-sm">
-                            <span className="text-gray-500">العمر:</span>
-                            <span className="font-semibold text-gray-700">{child.ageInMonths || '?'} شهر</span>
-                        </div>
-                    </div>
-                </Link>
-            ))}
+      {children.length > 0 && (
+        <div className="mt-8 p-4 bg-[#33AB98]/5 rounded-2xl border border-[#33AB98]/10 flex gap-3 text-sm text-[#33AB98]">
+          <div className="flex-shrink-0 mt-0.5">💡</div>
+          <p>يمكنك اختيار طفل محدد كـ "طفل أساسي" لتطبيق ألوانه المفضلة في التطبيق.</p>
         </div>
       )}
     </div>

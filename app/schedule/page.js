@@ -11,12 +11,22 @@ export default function SchedulePage() {
   useEffect(() => {
     // Ideally fetch from an API, using mock data for now based on typical schedule
     const mockSchedule = [
-      { id: 1, age: 'عند الولادة', vaccines: ['التهاب الكبد ب (الجرعة الأولى)', 'الدرن (BCG)', 'شلل الأطفال (الجرعة الصفرية)'] },
-      { id: 2, age: 'شهرين', vaccines: ['شلل الأطفال (الجرعة الأولى)', 'الخماسي (الجرعة الأولى)', 'الالتهاب الرئوي (الجرعة الأولى)'] },
-      { id: 3, age: '4 شهور', vaccines: ['شلل الأطفال (الجرعة الثانية)', 'الخماسي (الجرعة الثانية)', 'الالتهاب الرئوي (الجرعة الثانية)'] },
-      { id: 4, age: '6 شهور', vaccines: ['شلل الأطفال (الجرعة الثالثة)', 'الخماسي (الجرعة الثالثة)', 'الالتهاب الرئوي (الجرعة الثالثة)'] },
-      { id: 5, age: '9 شهور', vaccines: ['شلل الأطفال (الجرعة الرابعة)', 'فيتامين أ'] },
-      { id: 6, age: '12 شهر (سنة)', vaccines: ['شلل الأطفال (الجرعة الخامسة)', 'الحصبة والنكاف والحصبة الألماني (MMR)'] },
+      { 
+        id: 1, 
+        age: 'عند الولادة', 
+        vaccines: [
+          'التهاب الكبد ب (الجرعة الأولى)', 
+          'الدرن (BCG)', 
+          'شلل الأطفال (الجرعة الصفرية)',
+          'تحليل الغدة',
+          'فحص السمع'
+        ] 
+      },
+      { id: 2, age: 'شهرين', vaccines: ['شلل الأطفال (الجرعة الأولى)', 'الخماسي (الجرعة الأولى)'] },
+      { id: 3, age: '4 شهور', vaccines: ['شلل الأطفال (الجرعة الثانية)', 'الخماسي (الجرعة الثانية)'] },
+      { id: 4, age: '6 شهور', vaccines: ['شلل الأطفال (الجرعة الثالثة)', 'الخماسي (الجرعة الثالثة)', 'فيتامين أ'] },
+      { id: 5, age: '9 شهور', vaccines: ['شلل الأطفال (الجرعة الرابعة)'] },
+      { id: 6, age: '12 شهر (سنة)', vaccines: ['شلل الأطفال (الجرعة الخامسة)', 'الحصبة والنكاف والحصبة الألماني (MMR)', 'فيتامين أ'] },
       { id: 7, age: '18 شهر (سنة ونصف)', vaccines: ['شلل الأطفال (الجرعة المنشطة)', 'الثلاثي البكتيري (DPT)', 'الحصبة والنكاف والحصبة الألماني (الجرعة الثانية)', 'فيتامين أ'] },
     ];
     
@@ -37,7 +47,7 @@ export default function SchedulePage() {
           {schedule.map((item, index) => (
             <div key={item.id} className={`p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 justify-between items-start md:items-center ${index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
                 <div className="flex items-center gap-3 md:w-1/4">
-                    <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center text-[#4A90E2]">
+                    <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center text-[#33AB98]">
                         <Clock size={20} />
                     </div>
                     <div>

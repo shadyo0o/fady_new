@@ -3,17 +3,21 @@
 import styles from './Sidebar.module.css';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Baby, Syringe, Info, Bell, X } from 'lucide-react';
-
-const MENU_ITEMS = [
-  { name: 'الرئيسية', path: '/dashboard', icon: Home },
-  { name: 'الأطفال', path: '/childs', icon: Baby },
-  { name: 'جدول التطعيمات', path: '/schedule', icon: Syringe }, // May specific to child later
-  { name: 'نصائح طبية', path: '/information', icon: Info },
-];
+import { Home, Baby, Calendar, LayoutDashboard, Bell, X } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
+
+  const menuItems = [
+    { name: 'الرئيسية', path: '/home', icon: Home },
+    { name: 'الأطفال', path: '/childs', icon: Baby },
+    { name: 'الجدول', path: '/schedule', icon: Calendar },
+    { 
+      name: 'لوحة التحكم', 
+      path: '/dashboard', 
+      icon: LayoutDashboard 
+    },
+  ];
 
   return (
     <>
@@ -30,7 +34,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         <div className={styles.menu}>
-          {MENU_ITEMS.map((item) => {
+          {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname.startsWith(item.path);
             
@@ -39,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 key={item.path} 
                 href={item.path} 
                 className={`${styles.item} ${isActive ? styles.active : ''}`}
-                onClick={onClose} // Auto close on mobile click
+                onClick={onClose}
               >
                 <Icon size={20} />
                 <span>{item.name}</span>

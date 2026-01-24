@@ -22,7 +22,7 @@ export function useFCM() {
 
       if (permissionStatus === 'granted') {
         const token = await getToken(messaging, {
-          vapidKey: 'YOUR_VAPID_KEY_HERE' 
+          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
         });
         
         if (token) {

@@ -1,21 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Baby, Calendar, MapPin, ArrowRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import MobileLayout from '@/components/layout/MobileLayout';
 import api from '@/lib/api/client';
-
-const healthOffices = [
-  { id: "1", name: "الهلال_القديم" },
-  { id: "2", name: "صحة_أول_مديرية_الصحة" },
-  { id: "3", name: "عمارة_برغش" },
-  { id: "4", name: "رعاية_طفل_شبرا_ميدان_الساعة" },
-];
+import { HEALTH_OFFICES } from '@/lib/constants';
+import { useAuth } from '@/contexts/AuthContext';
+import { useChild } from '@/contexts/ChildContext';
 
 const AddChild = () => {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { setTempGender } = useChild();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -24,6 +22,17 @@ const AddChild = () => {
     gender: "",
     healthOffice: "",
   });
+
+  useEffect(() => {
+    // Clear temp gender when leaving the page
+    return () => setTempGender(null);
+  }, [setTempGender]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/signin');
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,7 +76,7 @@ const AddChild = () => {
           {/* Icon */}
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-blue-50 rounded-xl mx-auto flex items-center justify-center mb-3 border border-blue-100">
-              <Baby className="w-8 h-8 text-[#4A90E2]" />
+              <Baby className="w-8 h-8 text-[#33AB98]" />
             </div>
             <h2 className="text-lg font-semibold text-gray-800">
               أضف طفلك
@@ -92,7 +101,7 @@ const AddChild = () => {
               <input
                 type="text"
                 placeholder="أدخل الاسم"
-                className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 px-3 focus:outline-none focus:border-[#4A90E2] transition-colors"
+                className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 px-3 focus:outline-none focus:border-[#33AB98] transition-colors"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -110,7 +119,7 @@ const AddChild = () => {
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input
                   type="date"
-                  className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 focus:outline-none focus:border-[#4A90E2] transition-colors"
+                  className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 focus:outline-none focus:border-[#33AB98] transition-colors"
                   value={formData.birthDate}
                   onChange={(e) =>
                     setFormData({ ...formData, birthDate: e.target.value })
@@ -128,10 +137,13 @@ const AddChild = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, gender: "male" })}
+                  onClick={() => {
+                    setFormData({ ...formData, gender: "male" });
+                    setTempGender("male");
+                  }}
                   className={`h-12 rounded-lg border flex items-center justify-center gap-2 transition-all ${
                     formData.gender === "male"
-                      ? "border-[#4A90E2] bg-blue-50 text-[#4A90E2]"
+                      ? "border-[#33AB98] bg-blue-50 text-[#33AB98]"
                       : "border-gray-200 bg-gray-50 text-gray-500"
                   }`}
                 >
@@ -140,7 +152,10 @@ const AddChild = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, gender: "female" })}
+                  onClick={() => {
+                    setFormData({ ...formData, gender: "female" });
+                    setTempGender("female");
+                  }}
                   className={`h-12 rounded-lg border flex items-center justify-center gap-2 transition-all ${
                     formData.gender === "female"
                       ? "border-pink-500 bg-pink-50 text-pink-500"
@@ -161,7 +176,7 @@ const AddChild = () => {
               <div className="relative">
                   <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   <select
-                    className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 appearance-none focus:outline-none focus:border-[#4A90E2] transition-colors text-gray-700"
+                    className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 appearance-none focus:outline-none focus:border-[#33AB98] transition-colors text-gray-700"
                     value={formData.healthOffice}
                     onChange={(e) =>
                       setFormData({ ...formData, healthOffice: e.target.value })
@@ -169,9 +184,9 @@ const AddChild = () => {
                     required
                   >
                     <option value="" disabled>اختر مكتب الصحة</option>
-                    {healthOffices.map((office) => (
-                      <option key={office.id} value={office.id}>
-                        {office.name}
+                    {HEALTH_OFFICES.map((office) => (
+                      <option key={office.value} value={office.value}>
+                        {office.label}
                       </option>
                     ))}
                   </select>
@@ -180,7 +195,7 @@ const AddChild = () => {
 
             <Button
               type="submit"
-              className="w-full h-12 rounded-lg text-sm font-semibold bg-[#4A90E2] hover:bg-[#357ABD] mt-6 flex items-center justify-center"
+              className="w-full h-12 rounded-lg text-sm font-semibold bg-[#33AB98] hover:bg-[#357ABD] mt-6 flex items-center justify-center"
               disabled={loading}
             >
               {loading ? "جاري الإضافة..." : "إضافة الطفل"}

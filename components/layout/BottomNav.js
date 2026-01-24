@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Calendar, PlusCircle, Baby, User } from 'lucide-react';
+import { Home, LayoutDashboard, BookOpen, Baby, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export const BottomNav = () => {
@@ -9,8 +9,8 @@ export const BottomNav = () => {
 
   const navItems = [
     { icon: Home, label: 'الرئيسية', path: '/home' },
-    { icon: Calendar, label: 'الجدول', path: '/timeline' },
-    { icon: PlusCircle, label: 'إضافة', path: '/add-child', highlight: true },
+    { icon: BookOpen, label: 'قصة فادي', path: '/story' },
+    { icon: LayoutDashboard, label: 'لوحة التحكم', path: '/dashboard', highlight: true },
     { icon: Baby, label: 'أطفالي', path: '/childs' },
     { icon: User, label: 'حسابي', path: '/profile' },
   ];
@@ -26,11 +26,11 @@ export const BottomNav = () => {
                 key={item.path} 
                 href={item.path}
                 className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-colors ${
-                  isActive ? 'text-[#4A90E2]' : 'text-gray-400 hover:text-gray-600'
+                  isActive ? 'text-[#33AB98]' : 'text-gray-400 hover:text-gray-600'
                 } ${item.highlight ? '-mt-8' : ''}`}
               >
                 {item.highlight ? (
-                  <div className="w-14 h-14 bg-[#4A90E2] rounded-full flex items-center justify-center shadow-lg shadow-blue-200 hover:bg-[#357ABD] transition-colors text-white">
+                  <div className="w-14 h-14 bg-[#33AB98] rounded-full flex items-center justify-center shadow-lg shadow-blue-200 hover:bg-[#357ABD] transition-colors text-white">
                     <item.icon size={24} />
                   </div>
                 ) : (

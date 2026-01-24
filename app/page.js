@@ -9,20 +9,31 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
       {/* Hero Section */}
       <div className="gradient-hero flex-1 flex flex-col items-center justify-center px-6 py-12 text-center relative overflow-hidden">
-        {/* Background Pattern could be added here */}
+
+
+<div className="text-center relative z-10">
+            <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
+              <img 
+                src="/logo.png" 
+                alt="Fady" 
+                className='w-full h-full object-cover' 
+              />
+            </div>
+            <h1 className="text-4xl font-bold mb-2"> Fady's Vaccines</h1>
+            <p className="text-white/90 text-lg">رفيقك من لحظة الولادة.  </p>
+            <p className="text-white/90 text-lg"> تنبيهات ذكية: مفيش تطعيم هيفوتك أبداً. </p>
+            <p className="text-white/90 text-lg"> توفير وقت: بنحددلك أيام عمل مكتب الصحة الخاص بيك عشان مشوارك يبقى أكيد. </p>
+            <p className="text-white/90 text-lg"> دعم كامل: الأوراق المطلوبة لشهادة الميلاد حسب مستشفى ولادتك.. خطوة بخطوة. </p>
+          </div>
         
-        <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mb-6">
-          <span className="text-5xl">💉</span>
-        </div>
-        
-        <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
+        {/* <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
           فادي
         </h1>
         <p className="text-blue-50 text-xl mb-10 font-medium">
           مسار التطعيم والولادة المثالي
-        </p>
+        </p> */}
 
-        <div className="space-y-4 mb-12 w-full max-w-xs">
+        <div className="space-y-4 mt-4 mb-12 w-full max-w-xs">
           {[
             { icon: Shield, text: "تابع تطعيمات طفلك بدقة" },
             { icon: Bell, text: "تنبيهات قبل كل جرعة" },
@@ -47,9 +58,14 @@ export default function LandingPage() {
         
         <p className="text-center text-gray-500 font-medium">
           لديك حساب بالفعل؟{" "}
-          <Link href="/auth/signin" className="text-[#4A90E2] font-bold hover:underline">
+          <Link href="/auth/signin" className="text-[#33AB98] font-bold hover:underline">
             تسجيل الدخول
           </Link>
+        </p>
+        <p className="mt-8 text-[11px] text-gray-400 text-center leading-relaxed">
+          المعلومات والمواعيد الواردة في التطبيق هي للأغراض الاسترشادية فقط. يجب دائماً استشارة الطبيب المختص أو وزارة الصحة للتأكد من المواعيد والجرعات الصحيحة. 
+          <br />
+          المستخدم هو المسؤول الوحيد عن دقة البيانات المدخلة، والتطبيق غير مسؤول عن أي حسابات خاطئة ناتجة عن إدخال تواريخ غير صحيحة.
         </p>
       </div>
     </div>

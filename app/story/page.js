@@ -24,7 +24,7 @@ const FadyStory = () => {
           <div className="text-center relative z-10">
             <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
               <img 
-                src="/Untitled.png" 
+                src="/logo.png" 
                 alt="Fady" 
                 className='w-full h-full object-cover' 
               />
@@ -54,7 +54,7 @@ const FadyStory = () => {
               </p>
               
               <p>
-                "أثناء رحلتنا معه لضمان حصوله على تطعيماته ورعايته الصحية، لمسنا حجم المسؤولية، وأدركنا أن 'النسيان' في عالم الصحة قد يكلف الكثير. ومن هنا وُلد تطبيق (Fady Care Journey)."
+                "أثناء رحلتنا معه لضمان حصوله على تطعيماته ورعايته الصحية، لمسنا حجم المسؤولية، وأدركنا أن 'النسيان' في عالم الصحة قد يكلف الكثير. ومن هنا وُلد تطبيق (Fady's Vaccines )."
               </p>
               
               <p>

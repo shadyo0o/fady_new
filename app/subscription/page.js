@@ -42,7 +42,7 @@ const SubscriptionPage = () => {
 
         <div className="p-4">
           {/* Plan Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-[#4A90E2] p-6 mb-6 shadow-lg shadow-blue-100">
+          <div className="relative overflow-hidden rounded-2xl bg-[#33AB98] p-6 mb-6 shadow-lg shadow-blue-100">
             {/* Decorative circles */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 blur-xl" />
@@ -92,7 +92,7 @@ const SubscriptionPage = () => {
                     className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
                   >
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-blue-100">
-                      <Icon className="w-5 h-5 text-[#4A90E2]" />
+                      <Icon className="w-5 h-5 text-[#33AB98]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-sm">
@@ -136,7 +136,7 @@ const SubscriptionPage = () => {
           </div>
 
           {/* CTA */}
-          <Button className="w-full h-14 rounded-2xl text-base font-bold bg-[#4A90E2] hover:bg-blue-600 shadow-lg shadow-blue-100 transition-all active:scale-[0.98] mb-4">
+          <Button className="w-full h-14 rounded-2xl text-base font-bold bg-[#33AB98] hover:bg-blue-600 shadow-lg shadow-blue-100 transition-all active:scale-[0.98] mb-4">
             اشترك الآن - 60 جنيه
           </Button>
 

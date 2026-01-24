@@ -1,6 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
 :root {
   /* Brand Colors - Child Friendly & Calm */
-  --primary: #4A90E2;
+  --primary: #33AB98;
   /* Soft Blue */
   --primary-light: #E3F2FD;
   --secondary: #81C784;
@@ -13,6 +19,8 @@
 
   /* Text & Backgrounds */
   --bg-main: #FDFDFD;
+  --bg-page: #F3F4F6;
+  /* Default gray-100 equivalent for surface backgrounds if not gray-50 */
   --bg-card: #FFFFFF;
   --text-main: #2C3E50;
   --text-muted: #607D8B;
@@ -25,6 +33,26 @@
   --bs-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.theme-female {
+  --bg-main: #fdf2f8;
+  /* pink-50 */
+  --bg-page: #fce7f3;
+  /* pink-100 */
+}
+
+.theme-male {
+  --bg-main: #f0f9ff;
+  /* sky-50 */
+  --bg-page: #e0f2fe;
+  /* sky-100 */
+}
+
+.theme-default {
+  --bg-main: #FDFDFD;
+  --bg-page: #F9FAFB;
+  /* gray-50 */
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -34,6 +62,7 @@
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: var(--bg-main);
+  transition: background-color 0.3s ease;
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
 }
@@ -137,4 +166,51 @@ a {
 /* Destructive variants for Heart icon */
 .text-destructive {
   color: var(--danger);
+}
+
+/* Toast RTL Styles */
+.toast-rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.Toastify__toast {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.Toastify__toast-body {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.Toastify__close-button {
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.8;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
 }

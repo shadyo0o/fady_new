@@ -33,7 +33,7 @@ export default function InformationPage() {
     <div className="animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
-                <h1 className="text-2xl font-bold text-[#4A90E2] mb-1">المعلومات الطبية</h1>
+                <h1 className="text-2xl font-bold text-[#33AB98] mb-1">المعلومات الطبية</h1>
                 <p className="text-gray-500">نصائح وإرشادات موثوقة لصحة طفلك</p>
             </div>
             
@@ -54,7 +54,7 @@ export default function InformationPage() {
                 {adviceList && adviceList.length > 0 ? adviceList.map((item, idx) => (
                     <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                         <div className="flex items-start gap-3">
-                            <div className="bg-blue-50 p-3 rounded-lg text-[#4A90E2]">
+                            <div className="bg-blue-50 p-3 rounded-lg text-[#33AB98]">
                                 <BookOpen size={24} />
                             </div>
                             <div>
