@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Baby, Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { useRouter, useParams } from 'next/navigation';
+import { ArrowLeft, Baby, Calendar, MapPin, ArrowRight, Save, UserCog } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import MobileLayout from '@/components/layout/MobileLayout';
 import api from '@/lib/api/client';
@@ -10,11 +10,13 @@ import { HEALTH_OFFICES } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChild } from '@/contexts/ChildContext';
 
-const AddChild = () => {
+const EditChild = () => {
   const router = useRouter();
+  const { id } = useParams();
   const { user, loading: authLoading } = useAuth();
   const { setTempGender } = useChild();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: "",
@@ -34,6 +36,53 @@ const AddChild = () => {
     }
   }, [user, authLoading, router]);
 
+  useEffect(() => {
+    const fetchChildData = async () => {
+      if (!id) return;
+      setFetching(true);
+      try {
+        let childData = null;
+        // Try multiple ways to get child data (mirroring logic in detail page)
+        try {
+          const cRes = await api.get(`/childs/getChild/${id}`);
+          childData = cRes.data.child || cRes.data.data || (cRes.data?._id ? cRes.data : null);
+        } catch (e) {
+          try {
+            const cRes = await api.get(`/childs/${id}`);
+            childData = cRes.data.child || cRes.data.data || (cRes.data?._id ? cRes.data : null);
+          } catch (e2) {
+            console.error("Child fetch failed", e2);
+          }
+        }
+
+        if (childData) {
+          // Format birthDate to YYYY-MM-DD for input[type="date"]
+          const date = new Date(childData.birthDate);
+          const formattedDate = date.toISOString().split('T')[0];
+          
+          setFormData({
+            name: childData.name || "",
+            birthDate: formattedDate,
+            gender: childData.gender || "",
+            healthOffice: childData.healthOffice || "",
+          });
+          setTempGender(childData.gender);
+        } else {
+          setError('لم يتم العثور على بيانات الطفل');
+        }
+      } catch (err) {
+        console.error(err);
+        setError('فشل في تحميل بيانات الطفل');
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    if (user && !authLoading) {
+      fetchChildData();
+    }
+  }, [id, user, authLoading, router, setTempGender]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -47,15 +96,26 @@ const AddChild = () => {
     }
 
     try {
-        await api.post('/childs/addChild', formData);
-        router.push('/home'); // User requested navigate("/home")
+        // Using the new patch endpoint provided by the user
+        await api.patch(`/childs/editChild/${id}`, formData);
+        router.push('/home'); 
     } catch (err) {
         console.error(err);
-        setError(err.response?.data?.message || 'فشل إضافة الطفل');
+        setError(err.response?.data?.message || 'فشل تحديث بيانات الطفل');
     } finally {
         setLoading(false);
     }
   };
+
+  if (authLoading || fetching) {
+    return (
+      <MobileLayout dir="rtl" hideBottomNav>
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#33AB98]"></div>
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout dir="rtl">
@@ -68,21 +128,21 @@ const AddChild = () => {
           >
             <ArrowRight className="w-4 h-4 text-gray-700" />
           </button>
-          <h1 className="text-base font-semibold text-gray-800">إضافة طفل</h1>
+          <h1 className="text-base font-semibold text-gray-800">تعديل بيانات الطفل</h1>
         </div>
 
         {/* Form */}
         <div className="p-4">
           {/* Icon */}
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-50 rounded-xl mx-auto flex items-center justify-center mb-3 border border-blue-100">
-              <Baby className="w-8 h-8 text-[#33AB98]" />
+            <div className="w-16 h-16 bg-[#33AB98]/10 rounded-xl mx-auto flex items-center justify-center mb-3 border border-[#33AB98]/20">
+              <UserCog className="w-8 h-8 text-[#33AB98]" />
             </div>
             <h2 className="text-lg font-semibold text-gray-800">
-              أضف طفلك
+              تعديل بيانات {formData.name}
             </h2>
             <p className="text-sm text-gray-500 mt-0.5">
-              ابدأ في متابعة تطعيماته
+              قم بتحديث المعلومات الصحيحة لطفلك
             </p>
           </div>
 
@@ -101,7 +161,7 @@ const AddChild = () => {
               <input
                 type="text"
                 placeholder="أدخل الاسم"
-                className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 px-3 focus:outline-none focus:border-[#33AB98] transition-colors"
+                className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 px-3 focus:outline-none focus:border-[#33AB98] transition-colors font-medium text-gray-800"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -119,7 +179,7 @@ const AddChild = () => {
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input
                   type="date"
-                  className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 focus:outline-none focus:border-[#33AB98] transition-colors"
+                  className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 focus:outline-none focus:border-[#33AB98] transition-colors font-medium text-gray-800"
                   value={formData.birthDate}
                   onChange={(e) =>
                     setFormData({ ...formData, birthDate: e.target.value })
@@ -176,7 +236,7 @@ const AddChild = () => {
               <div className="relative">
                   <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   <select
-                    className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 appearance-none focus:outline-none focus:border-[#33AB98] transition-colors text-gray-700"
+                    className="w-full h-12 rounded-lg bg-gray-50 border border-gray-200 pr-10 pl-3 appearance-none focus:outline-none focus:border-[#33AB98] transition-colors text-gray-700 font-medium"
                     value={formData.healthOffice}
                     onChange={(e) =>
                       setFormData({ ...formData, healthOffice: e.target.value })
@@ -191,34 +251,24 @@ const AddChild = () => {
                     ))}
                   </select>
               </div>
-              {formData.healthOffice === 'مكتب_صحة_طبي_سعد' && (
-                <p className="text-[10px] text-red-500 mt-1 mr-1">
-                  ⚠️ تنبيه: تطعيم الدرن غير متوفر في هذا المكتب
-                </p>
-              )}
-              {formData.healthOffice === 'رعاية_طفل_شبرا_ميدان_الساعة' && (
-                <p className="text-[10px] text-red-500 mt-1 mr-1">
-                  ⚠️ تنبيه: تطعيم الدرن غير متوفر في هذا المكتب
-                </p>
-              )}
-              {(formData.healthOffice === 'مكتب_صحة_طبي_سعد' || formData.healthOffice === 'رعاية_طفل_شبرا_ميدان_الساعة') && (
-                <p className="text-[10px] text-blue-600 mt-0.5 mr-1">
-                  💡 المواعيد المتاحة: السبت والثلاثاء فقط لجميع التطعيمات (عدا الكبدي طوال الأسبوع)
-                </p>
-              )}
-              {formData.healthOffice === 'مكتب_طبي_ناصر_المركز_الطبي' && (
-                <p className="text-[10px] text-blue-600 mt-1 mr-1">
-                  💡 المواعيد: السبت، الثلاثاء، الخميس (للشلل والدورية)، السبت والثلاثاء (للدرن والغدة)
-                </p>
-              )}
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 rounded-lg text-sm font-semibold bg-[#33AB98] hover:bg-[#357ABD] mt-6 flex items-center justify-center"
+              className="w-full h-12 rounded-lg text-sm font-semibold bg-[#33AB98] hover:bg-[#2b8f7f] mt-6 flex items-center justify-center gap-2"
               disabled={loading}
             >
-              {loading ? "جاري الإضافة..." : "إضافة الطفل"}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>جاري الحفظ...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>حفظ التعديلات</span>
+                </>
+              )}
             </Button>
           </form>
         </div>
@@ -227,4 +277,4 @@ const AddChild = () => {
   );
 };
 
-export default AddChild;
+export default EditChild;

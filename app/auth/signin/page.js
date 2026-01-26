@@ -39,9 +39,11 @@ const SigninPage = () => {
         <h1 className="text-xl font-semibold text-white">
           مرحباً بعودتك
         </h1>
-        <p className="text-blue-100 text-sm mt-1">
+        <p className="text-blue-100 text-xl mt-1">
           تابع رحلة تطعيم طفلك
         </p>
+        <p className="text-blue-100 text-xl mt-1">
+"دقتنا مستمدة من واقعنا.. مواعيد تطعيم ذكية ومخصصة لمكاتب الصحة داخل مدينة دمنهور"        </p>
       </div>
 
       {/* Form */}

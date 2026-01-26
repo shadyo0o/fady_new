@@ -57,8 +57,10 @@ const SignupPage = () => {
         <h1 className="text-2xl font-bold text-white">
           فادي
         </h1>
-        <p className="text-blue-50 text-sm mt-1">
+        <p className="text-blue-50 text-xl mt-1">
 رفيقك من لحظة الولادة.        </p>
+        <p className="text-blue-50 text-xl mt-1">
+"دقتنا مستمدة من واقعنا.. مواعيد تطعيم ذكية ومخصصة لمكاتب الصحة داخل مدينة دمنهور"         </p>
       </div>
 
       {/* Form */}

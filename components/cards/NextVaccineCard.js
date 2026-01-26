@@ -64,8 +64,8 @@ export const NextVaccineCard = ({ vaccineName, childName, dueDate, day, daysRema
         </div>
       </div>
 
-      {/* Warning message for Shubra office */}
-      {office && office.includes('شبرا') && warning && (
+      {/* Warning message for offices without BCG */}
+      {office && (office.includes('شبرا') || office.includes('سعد')) && warning && (
         <div className="mt-4 pt-4 border-t border-white/10">
           <div className="bg-red-500/20 border border-red-300/30 rounded-lg p-3 backdrop-blur-sm">
             <div className="flex items-start gap-2">
@@ -76,19 +76,24 @@ export const NextVaccineCard = ({ vaccineName, childName, dueDate, day, daysRema
         </div>
       )}
 
-      {/* Info message for Shubra office - general rules */}
-      {office && office.includes('شبرا') && !warning && vaccineName && !vaccineName.includes('كبدي') && !vaccineName.includes('كبد') && (
+      {/* Info message for offices with special rules - general rules */}
+      {office && !warning && vaccineName && !vaccineName.includes('كبدي') && !vaccineName.includes('كبد') && 
+       (office.includes('شبرا') || office.includes('سعد') || office.includes('ناصر')) && (
         <div className="mt-4 pt-4 border-t border-white/10">
           <div className="bg-blue-500/20 border border-blue-300/30 rounded-lg p-3 backdrop-blur-sm">
             <div className="flex items-start gap-2">
               <Info className="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0" />
               <p className="text-xs font-medium text-blue-100">
-                ملاحظة: في مكتب شبرا، جميع التطعيمات متوفرة فقط يوم السبت والثلاثاء
+                {office.includes('شبرا') && "ملاحظة: في مكتب شبرا، جميع التطعيمات متوفرة فقط يوم السبت والثلاثاء"}
+                {office.includes('سعد') && "ملاحظة: في مكتب سعد، جميع التطعيمات متوفرة يوم السبت والثلاثاء، وتطعيم الدرن غير متوفر"}
+                {office.includes('ناصر') && "ملاحظة: في مكتب ناصر، تطعيمات الشلل والجرعات الدورية متوفرة السبت والثلاثاء والخميس، والدرن السبت والثلاثاء فقط"}
               </p>
             </div>
           </div>
         </div>
       )}
+
+
 
       {childId && (
         <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-sm font-medium">

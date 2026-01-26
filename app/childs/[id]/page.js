@@ -11,6 +11,8 @@ import {
   ArrowRight, 
   FileText, 
   Lightbulb, 
+  UserCog,
+  Save,
   Check, 
   X 
 } from 'lucide-react';
@@ -135,12 +137,20 @@ export default function ChildDetailPage() {
     <MobileLayout hideBottomNav>
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-l from-[#33AB98] to-[#33AB98]/90 text-white p-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <ArrowRight className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold">معلومات الطفل</h1>
-        </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <button onClick={() => router.back()} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold">معلومات الطفل</h1>
+            </div>
+            <Link 
+              href={`/childs/edit/${id}`}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <UserCog className="w-5 h-5" />
+            </Link>
+          </div>
       </div>
 
       <div className="p-4 space-y-4">

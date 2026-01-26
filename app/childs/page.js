@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api/client';
 import Link from 'next/link';
-import { Baby, Plus } from 'lucide-react';
+import { Baby, Plus, UserCog } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useChild } from '@/contexts/ChildContext';
 import { ChildCard } from '@/components/cards/ChildCard';
@@ -107,13 +107,23 @@ export default function ChildListPage() {
           <h2 className="text-base font-semibold text-[#2C3E50]">
             أطفالك
           </h2>
-          <Link
-            href="/childs/add"
-            className="flex items-center gap-1 text-sm font-medium text-[#33AB98]"
-          >
-            <Plus className="w-4 h-4" />
-            إضافة
-          </Link>
+          {children.length > 0 ? (
+            <Link
+              href={`/childs/edit/${children[0].id || children[0]._id}`}
+              className="flex items-center gap-1 text-sm font-medium text-[#33AB98]"
+            >
+              <UserCog className="w-4 h-4" />
+              تعديل
+            </Link>
+          ) : (
+            <Link
+              href="/childs/add"
+              className="flex items-center gap-1 text-sm font-medium text-[#33AB98]"
+            >
+              <Plus className="w-4 h-4" />
+              إضافة
+            </Link>
+          )}
         </div>
 
         {children.length > 0 ? (

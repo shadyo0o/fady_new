@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import { Plus, Bell, Activity } from "lucide-react";
+import { Plus, Bell, Activity, UserCog } from "lucide-react";
 import Link from "next/link";
 import MobileLayout from "@/components/layout/MobileLayout";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -383,14 +383,25 @@ export default function HomePage() {
           <div className="mb-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold text-gray-800">أطفالك</h2>
-              <Link
-                href="/childs/add"
-                className="flex items-center gap-1 text-sm font-medium text-[#33AB98] hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors"
-                style={{textDecoration: 'none'}}
-              >
-                <Plus className="w-4 h-4" />
-                إضافة
-              </Link>
+              {children.length > 0 ? (
+                <Link
+                  href={`/childs/edit/${children[0].id || children[0]._id}`}
+                  className="flex items-center gap-1 text-sm font-medium text-[#33AB98] hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors"
+                  style={{textDecoration: 'none'}}
+                >
+                  <UserCog className="w-4 h-4" />
+                  تعديل
+                </Link>
+              ) : (
+                <Link
+                  href="/childs/add"
+                  className="flex items-center gap-1 text-sm font-medium text-[#33AB98] hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors"
+                  style={{textDecoration: 'none'}}
+                >
+                  <Plus className="w-4 h-4" />
+                  إضافة
+                </Link>
+              )}
             </div>
 
             {children.length > 0 ? (
@@ -452,6 +463,17 @@ export default function HomePage() {
               </div>
               <h3 className="font-bold text-gray-800 text-sm">سجل التطعيمات التاريخي</h3>
               <p className="text-xs text-gray-500 mt-1">عرض كل التطعيمات السابقة</p>
+            </Link>
+
+            <Link
+              href="/birth-certificate-steps"
+              className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+            >
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <span className="text-xl">📜</span>
+              </div>
+              <h3 className="font-bold text-gray-800 text-sm">خطوات شهادة الميلاد</h3>
+              <p className="text-xs text-gray-500 mt-1">الأوراق والمواعيد المطلوبة</p>
             </Link>
 
             <OfficeSelector 
