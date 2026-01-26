@@ -1,9 +1,11 @@
 'use client';
 
-import { ArrowRight, Check, Shield, Bell, Heart, Stethoscope } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Check, Shield, Bell, Heart, Stethoscope, CreditCard, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import MobileLayout from "@/components/layout/MobileLayout";
+import api from "@/lib/api/client";
 
 const features = [
   {
@@ -25,10 +27,29 @@ const features = [
 
 const SubscriptionPage = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'wallet'
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.post('/users/subscribe', { paymentMethod });
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("حدث خطأ في الحصول على رابط الدفع");
+      }
+    } catch (error) {
+      console.error("Subscription error:", error);
+      alert(error.response?.data?.message || "فشل بدء عملية الدفع. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <MobileLayout dir="rtl">
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white pb-10">
         {/* Header - Classic Medical */}
         <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 shadow-sm sticky top-0 z-10">
           <button
@@ -74,6 +95,50 @@ const SubscriptionPage = () => {
                    أقل من 4 جنيه في الشهر
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Payment Method Selection */}
+          <div className="mb-6">
+            <h2 className="text-sm font-bold text-gray-800 mb-4 px-1 tracking-wider">
+              اختر وسيلة الدفع
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setPaymentMethod('card')}
+                className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+                  paymentMethod === 'card'
+                    ? 'border-[#33AB98] bg-[#33AB98]/5 ring-1 ring-[#33AB98]'
+                    : 'border-gray-100 bg-white'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  paymentMethod === 'card' ? 'bg-[#33AB98] text-white' : 'bg-gray-50 text-gray-400'
+                }`}>
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <span className={`text-xs font-bold ${paymentMethod === 'card' ? 'text-[#33AB98]' : 'text-gray-500'}`}>
+                  بطاقة بنكية
+                </span>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod('wallet')}
+                className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+                  paymentMethod === 'wallet'
+                    ? 'border-[#33AB98] bg-[#33AB98]/5 ring-1 ring-[#33AB98]'
+                    : 'border-gray-100 bg-white'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  paymentMethod === 'wallet' ? 'bg-[#33AB98] text-white' : 'bg-gray-50 text-gray-400'
+                }`}>
+                  <Wallet className="w-5 h-5" />
+                </div>
+                <span className={`text-xs font-bold ${paymentMethod === 'wallet' ? 'text-[#33AB98]' : 'text-gray-500'}`}>
+                  محفظة إلكترونية
+                </span>
+              </button>
             </div>
           </div>
 
@@ -136,12 +201,23 @@ const SubscriptionPage = () => {
           </div>
 
           {/* CTA */}
-          <Button className="w-full h-14 rounded-2xl text-base font-bold bg-[#33AB98] hover:bg-blue-600 shadow-lg shadow-blue-100 transition-all active:scale-[0.98] mb-4">
-            اشترك الآن - 60 جنيه
+          <Button 
+            className="w-full h-14 rounded-2xl text-base font-bold bg-[#33AB98] hover:bg-blue-600 shadow-lg shadow-blue-100 transition-all active:scale-[0.98] mb-4 flex items-center justify-center gap-2"
+            onClick={handleSubscribe}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                جاري التحميل...
+              </>
+            ) : (
+              "اشترك الآن - 60 جنيه"
+            )}
           </Button>
 
-          <p className="text-center text-xs text-gray-400 font-medium">
-            دفعة واحدة • لا توجد رسوم خفية • اشتراك مدى الحياة للطفل
+          <p className="text-center text-xs text-gray-400 font-medium px-4">
+            دفعة واحدة • لا توجد رسوم خفية • اشتراك لمدة 18 شهر
           </p>
         </div>
       </div>
