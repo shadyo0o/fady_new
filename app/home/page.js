@@ -444,7 +444,7 @@ export default function HomePage() {
             </Link>
 
             <Link
-              href="/childs/696d67aca386ee323f1c5739"
+              href={children.length > 0 ? `/childs/${children[0].id || children[0]._id}` : "/childs/add"}
               className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -455,7 +455,7 @@ export default function HomePage() {
             </Link>
 
             <Link
-              href="/childs/696d67aca386ee323f1c5739/history"
+              href={children.length > 0 ? `/childs/${children[0].id || children[0]._id}/history` : "/childs/add"}
               className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
