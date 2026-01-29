@@ -26,7 +26,6 @@ export default function LandingPage() {
             <p className="text-white/90 text-lg"> تنبيهات ذكية: مفيش تطعيم هيفوتك أبداً. </p>
             <p className="text-white/90 text-lg"> توفير وقت: بنحددلك أيام عمل مكتب الصحة الخاص بيك عشان مشوارك يبقى أكيد. </p>
             <p className="text-white/90 text-lg"> دعم كامل: الأوراق المطلوبة لشهادة الميلاد حسب مستشفى ولادتك.. خطوة بخطوة. </p>
-            <p className="text-white/90 text-lg"> دعم كامل: الأوراق المطلوبة لشهادة الميلاد حسب مستشفى ولادتك.. خطوة بخطوة. </p>
           </div>
 
           {/* Home Icon */}
