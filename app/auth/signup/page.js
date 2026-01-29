@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Phone } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
+import InstallBanner from '@/components/ui/InstallBanner';
 
 const SignupPage = () => {
   const { signup } = useAuth();
@@ -42,6 +43,7 @@ const SignupPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
+      <InstallBanner />
       {/* Header */}
       <div className="gradient-hero pt-12 pb-16 px-6 text-center">
         {/* <div className="w-20 h-20 bg-white/20 rounded-2xl mx-auto flex items-center justify-center mb-4 text-white">

@@ -3,10 +3,12 @@
 import { ArrowLeft, Shield, Bell, Heart } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import InstallBanner from '@/components/ui/InstallBanner';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
+      <InstallBanner />
       {/* Hero Section */}
       <div className="gradient-hero flex-1 flex flex-col items-center justify-center px-6 py-12 text-center relative overflow-hidden">
 

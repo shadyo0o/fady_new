@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, Stethoscope } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
+import InstallBanner from '@/components/ui/InstallBanner';
 
 const SigninPage = () => {
   const { login } = useAuth();
@@ -31,6 +32,7 @@ const SigninPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
+      <InstallBanner />
       {/* Header - Classic Medical */}
       <div className="bg-[#33AB98] pt-14 pb-12 px-6 text-center">
         {/* <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">

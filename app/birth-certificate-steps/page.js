@@ -7,8 +7,8 @@ import { BottomNav } from '@/components/layout/BottomNav';
 
 export default function BirthCertificateStepsPage() {
   const documents = [
-    { title: 'بطاقة الزوج (الأصل + صورتين)', icon: <FileText className="w-5 h-5 text-blue-500" /> },
-    { title: 'بطاقة الزوجة (الأصل + صورتين)', icon: <FileText className="w-5 h-5 text-pink-500" /> },
+    { title: 'بطاقة الزوج (الأصل + صورتين) يجب ان تكون سارية', icon: <FileText className="w-5 h-5 text-blue-500" /> },
+    { title: 'بطاقة الزوجة (الأصل + صورتين) يجب ان تكون سارية', icon: <FileText className="w-5 h-5 text-pink-500" /> },
     { title: 'قسيمة الزواج الأصلية (الأصل + صورتين)', icon: <FileText className="w-5 h-5 text-purple-500" /> },
     { title: 'إخطار الولادة من المستشفى (الأصل + صورتين)', icon: <FileText className="w-5 h-5 text-green-500" /> },
   ];
@@ -65,9 +65,15 @@ export default function BirthCertificateStepsPage() {
               <p className="text-xs text-blue-700 leading-relaxed font-medium">
                 تأكد من إحضار <span className="font-bold text-blue-900">نسختين ضوئيتين (تصوير)</span> من كل ورقة من الأوراق المذكورة أعلاه.
               </p>
-            </div>
-          </div>
 
+            </div>
+            <div className="flex items-start gap-2 pt-2 border-t border-blue-200">
+    <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+    <p className="text-xs text-red-800 leading-relaxed">
+      <span className="font-bold">تنبيه هام:</span> في حال كانت البطاقة الشخصية <span className="underline">غير سارية</span>، يرجى إحضار شهادة الميلاد الأصلية (كمبيوتر من السجل المدني فى ش السجن) لصاحب البطاقة لإتمام التسجيل.
+    </p>
+  </div>
+          </div>
           {/* Important Presence Section */}
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-5">
             <div className="flex items-center gap-2 mb-4">
