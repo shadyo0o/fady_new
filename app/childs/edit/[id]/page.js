@@ -96,7 +96,7 @@ const EditChild = () => {
     }
 
     try {
-        // Using the new patch endpoint provided by the user
+        // Using the correct endpoint for updating child (PATCH as per backend)
         await api.patch(`/childs/editChild/${id}`, formData);
         router.push('/home'); 
     } catch (err) {

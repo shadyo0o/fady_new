@@ -179,7 +179,7 @@ export default function HomePage() {
 
   const fetchDashboard = async () => {
     try {
-      const response = await api.get('/api/dashboard');
+      const response = await api.get('/dashboard');
       const dashboardData = response.data;
       
       // Fetch vaccine data for each child to calculate progress

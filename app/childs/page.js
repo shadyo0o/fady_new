@@ -32,26 +32,38 @@ export default function ChildListPage() {
 
   const fetchChildren = async () => {
     try {
-      const response = await api.get('/childs');
+      console.log('Fetching children from /childs/getall...');
+      const response = await api.get('/childs/getall');
       const data = response.data;
+      
+      console.log('Raw API Response:', data);
       
       // Handle the structure from API response: { message: "Success", child: [...] }
       let childrenList = [];
       if (data && Array.isArray(data.child)) {
          childrenList = data.child;
+         console.log('Found children in data.child:', childrenList.length);
       } else if (data && Array.isArray(data.childs)) {
          childrenList = data.childs;
+         console.log('Found children in data.childs:', childrenList.length);
       } else if (Array.isArray(data)) {
         childrenList = data;
+        console.log('Found children directly in data:', childrenList.length);
       } else if (data && Array.isArray(data.data)) {
          childrenList = data.data;
+         console.log('Found children in data.data:', childrenList.length);
+      } else {
+         console.log('No children found. Available keys:', Object.keys(data || {}));
       }
+
+      console.log('Final children list:', childrenList);
 
       // Fetch vaccine data for each child to calculate progress
       const childrenWithProgress = await Promise.all(
         childrenList.map(async (child) => {
           try {
             const childId = child.id || child._id;
+            console.log('Processing child:', childId, child.name);
             // Use the same endpoint format as the detail page
             const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
             const vaccineData = vaccineResponse.data;
@@ -72,7 +84,7 @@ export default function ChildListPage() {
               completedVaccines
             };
           } catch (error) {
-            console.error(`Failed to fetch vaccines for child ${child.id || child._id}`, error);
+            console.error(`Failed to fetch vaccines for child ${child.id || child._id}:`, error);
             return {
               ...child,
               totalVaccines: 0,
@@ -82,9 +94,10 @@ export default function ChildListPage() {
         })
       );
 
+      console.log('Setting children with progress:', childrenWithProgress);
       setChildren(childrenWithProgress);
     } catch (error) {
-      console.error("Failed to fetch children", error);
+      console.error("Failed to fetch children:", error);
       setChildren([]);
     } finally {
       setLoading(false);

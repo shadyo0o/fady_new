@@ -33,9 +33,16 @@ const SigninPage = () => {
     <div className="min-h-screen flex flex-col bg-white" dir="rtl">
       {/* Header - Classic Medical */}
       <div className="bg-[#33AB98] pt-14 pb-12 px-6 text-center">
-        <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
+        {/* <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
           <Stethoscope className="w-8 h-8 text-[#33AB98]" />
-        </div>
+        </div> */}
+                            <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
+              <img 
+                src="/logo.png" 
+                alt="Fady" 
+                className='w-full h-full object-cover' 
+              />
+            </div>
         <h1 className="text-xl font-semibold text-white">
           مرحباً بعودتك
         </h1>
