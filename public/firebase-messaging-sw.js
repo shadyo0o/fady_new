@@ -25,7 +25,8 @@ messaging.onBackgroundMessage((payload) => {
     icon: '/logo.png', // تأكد من وجود صورة بهذا الاسم في مجلد public
     data: {
         // نستخدم الـ childId المرسل من الباك إند لبناء الرابط
-        url: payload.data && payload.data.childId ? `/childs/${payload.data.childId}` : '/'
+        // url: payload.data && payload.data.childId ? `/childs/${payload.data.childId}` : '/'
+        url: '/'
     }
   };
 
