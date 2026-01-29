@@ -49,9 +49,15 @@ const SigninPage = () => {
       {/* Form */}
       <div className="flex-1 bg-white px-5 pt-6 pb-6 rounded-t-3xl -mt-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-1">تسجيل الدخول</h2>
-        <p className="text-gray-500 text-sm mb-5">
+        <p className="text-gray-500 text-sm mb-3">
           أدخل بياناتك
         </p>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <p className="text-xs text-blue-800 text-center">
+            <strong>ملحوظة هامة:</strong> يرجى التأكد من حفظ البريد الإلكتروني وكلمة المرور المسجلين. لا يمكن استعادة كلمة المرور المنسية.
+          </p>
+        </div>
 
         {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm text-center">
@@ -97,15 +103,6 @@ const SigninPage = () => {
                 <Eye className="w-4 h-4" />
               )}
             </button>
-          </div>
-
-          <div className="text-left">
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-[#33AB98] font-medium hover:underline"
-            >
-              نسيت كلمة المرور؟
-            </Link>
           </div>
 
           <Button

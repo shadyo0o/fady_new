@@ -32,10 +32,10 @@ export default function ChildListPage() {
 
   const fetchChildren = async () => {
     try {
-      const response = await api.get('/childs/getall');
+      const response = await api.get('/childs');
       const data = response.data;
       
-      // Handle the nested structure from API response
+      // Handle the structure from API response: { message: "Success", child: [...] }
       let childrenList = [];
       if (data && Array.isArray(data.child)) {
          childrenList = data.child;
@@ -56,8 +56,8 @@ export default function ChildListPage() {
             const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
             const vaccineData = vaccineResponse.data;
             
-            // Extract data using the same structure as detail page
-            const res = vaccineData?.results || vaccineData || {};
+            // Extract data using the correct structure with results wrapper
+            const res = vaccineData?.results || {};
             const takenCount = res.taken?.length || 0;
             const overdueCount = res.overdue?.length || 0;
             const upcomingCount = res.upcoming?.length || 0;

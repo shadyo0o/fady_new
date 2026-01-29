@@ -68,9 +68,15 @@ const SignupPage = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-2">
          إنشاء حساب (القائم بالتسجيل الاب او الام) 
         </h2>
-        <p className="text-gray-500 text-sm mb-6">
+        <p className="text-gray-500 text-sm mb-3">
           ابدأ رحلة تطعيم طفلك
         </p>
+        
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+          <p className="text-xs text-yellow-800 text-center">
+            <strong>تأكيد مهم:</strong> يجب أن يكون البريد الإلكتروني ورقم الهاتف غير مستخدمين من قبل. يرجى حفظ هذه البيانات بشكل آمن حيث لا يمكن استعادة كلمة المرور المنسية.
+          </p>
+        </div>
 
         {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm text-center">

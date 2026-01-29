@@ -143,7 +143,9 @@ const ProfilePage = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">حالة التفعيل</span>
-                <span className="text-sm font-medium text-gray-800">{profile?.confirmed ? 'مفعل' : 'غير مفعل'}</span>
+                <span className={`text-sm font-medium ${profile?.isSubscribed || (user?.isSubscribed === true) || (profile?.subscriptionEndDate && new Date(profile.subscriptionEndDate).getTime() > Date.now()) ? 'text-green-600' : 'text-orange-600'}`}>
+                  {profile?.isSubscribed || (user?.isSubscribed === true) || (profile?.subscriptionEndDate && new Date(profile.subscriptionEndDate).getTime() > Date.now()) ? 'مفعل (مشترك)' : 'غير مفعل'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">آخر رقم معاملة</span>

@@ -81,18 +81,18 @@ const SubscriptionPage = () => {
               <div className="mb-4">
                 <div className="flex items-baseline gap-1">
                   <span className="text-5xl font-bold text-white">
-                    60
+                    50
                   </span>
                   <span className="text-xl text-white/80">جنيه</span>
                 </div>
                 <p className="text-white/70 text-sm mt-1">
-                  رحلة كاملة لمدة 18 شهر
+                  باقة شاملة لمدة 18 شهر
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 inline-block border border-white/20">
                 <p className="text-white text-xs font-semibold">
-                   أقل من 4 جنيه في الشهر
+                   أقل من 3 جنيه في الشهر
                 </p>
               </div>
             </div>
@@ -212,7 +212,7 @@ const SubscriptionPage = () => {
                 جاري التحميل...
               </>
             ) : (
-              "اشترك الآن - 60 جنيه"
+              "اشترك الآن - 50 جنيه"
             )}
           </Button>
 
