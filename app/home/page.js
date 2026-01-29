@@ -179,7 +179,7 @@ export default function HomePage() {
 
   const fetchDashboard = async () => {
     try {
-      const response = await api.get('/dashboard/');
+      const response = await api.get('/api/dashboard');
       const dashboardData = response.data;
       
       // Fetch vaccine data for each child to calculate progress
@@ -192,8 +192,8 @@ export default function HomePage() {
               const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
               const vaccineData = vaccineResponse.data;
               
-              // Extract data using the same structure as detail page
-              const res = vaccineData?.results || vaccineData || {};
+              // Extract data using the correct structure with results wrapper
+              const res = vaccineData?.results || {};
               const takenCount = res.taken?.length || 0;
               const overdueCount = res.overdue?.length || 0;
               const upcomingCount = res.upcoming?.length || 0;

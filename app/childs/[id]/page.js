@@ -25,6 +25,7 @@ export default function ChildDetailPage() {
   const [child, setChild] = useState(null);
   const [schedule, setSchedule] = useState({ taken: [], overdue: [], nextVaccine: null, upcoming: [] });
   const [loading, setLoading] = useState(true);
+  const [vaccineData, setVaccineData] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -71,7 +72,15 @@ export default function ChildDetailPage() {
 
       // Robust Schedule Fetch
       const sRes = await api.get(`/childs/getDueVaccines/${id}`);
-      setSchedule(sRes.data || {});
+      const scheduleData = sRes.data;
+      setSchedule(scheduleData);
+      
+      // Store the results separately for easier access
+      if (scheduleData.results) {
+        setVaccineData(scheduleData.results);
+      } else {
+        setVaccineData({});
+      }
     } catch (error) {
       console.error("Error fetching child details:", error);
     } finally {
@@ -116,11 +125,16 @@ export default function ChildDetailPage() {
     return `${months} شهر`;
   };
 
-  const res = schedule?.results || schedule || {};
-  const takenCount = res.taken?.length || 0;
-  const overdueCount = res.overdue?.length || 0;
-  const upcomingCount = res.upcoming?.length || 0;
-  const nextCount = res.nextVaccine ? 1 : 0;
+  const res = vaccineData || {};
+  const taken = res.taken || [];
+  const overdue = res.overdue || [];
+  const upcoming = res.upcoming || [];
+  const nextVaccine = res.nextVaccine || null;
+  
+  const takenCount = taken.length;
+  const overdueCount = overdue.length;
+  const upcomingCount = upcoming.length;
+  const nextCount = nextVaccine ? 1 : 0;
   
   const totalVaccines = takenCount + overdueCount + upcomingCount + nextCount;
   const progress = totalVaccines > 0 ? Math.round((takenCount / totalVaccines) * 100) : 0;
@@ -233,10 +247,105 @@ export default function ChildDetailPage() {
           </Link>
         </div>
 
+        {/* Vaccination Status Cards */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Overdue Vaccines */}
+          {overdue.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                  <X className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-red-800">تطعيمات متأخرة ({overdue.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {overdue.map((vaccine, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-3 border border-red-100">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-gray-800">{vaccine.title || vaccine.vaccineName || vaccine.name}</p>
+                        <p className="text-sm text-gray-500">العمر: {vaccine.dueInMonths ?? (vaccine.ageInMonths || vaccine.ageMonths)} شهر</p>
+                        {vaccine.date && (
+                          <p className="text-xs text-red-600">كان مستحق في: {new Date(vaccine.date).toLocaleDateString('ar-EG')}</p>
+                        )}
+                      </div>
+                      <Link 
+                        href={`/vaccine/${vaccine._id}?childId=${id}&name=${encodeURIComponent(vaccine.title || vaccine.vaccineName || vaccine.name)}`}
+                        className="px-3 py-1.5 bg-red-500 text-white text-xs font-bold rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        تسجيل الآن
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Next Vaccine */}
+          {nextVaccine && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-orange-800">التطعيم القادم</h3>
+              </div>
+              <div className="bg-white rounded-lg p-3 border border-orange-100">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-gray-800">{nextVaccine.title || nextVaccine.vaccineName || nextVaccine.name}</p>
+                    <p className="text-sm text-gray-500">العمر: {nextVaccine.dueInMonths ?? (nextVaccine.ageInMonths || nextVaccine.ageMonths)} شهر</p>
+                    {nextVaccine.date && (
+                      <p className="text-xs text-orange-600">تاريخ الاستحقاق: {new Date(nextVaccine.date).toLocaleDateString('ar-EG')}</p>
+                    )}
+                  </div>
+                  <Link 
+                    href={`/vaccine/${nextVaccine._id}?childId=${id}&name=${encodeURIComponent(nextVaccine.title || nextVaccine.vaccineName || nextVaccine.name)}`}
+                    className="px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-full hover:bg-orange-600 transition-colors"
+                  >
+                    تسجيل
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming Vaccines */}
+          {upcoming.length > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-blue-800">التطعيمات القادمة ({upcoming.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {upcoming.map((vaccine, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-3 border border-blue-100">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-gray-800">{vaccine.title || vaccine.vaccineName || vaccine.name}</p>
+                        <p className="text-sm text-gray-500">العمر: {vaccine.dueInMonths ?? (vaccine.ageInMonths || vaccine.ageMonths)} شهر</p>
+                        {vaccine.date && (
+                          <p className="text-xs text-blue-600">تاريخ الاستحقاق: {new Date(vaccine.date).toLocaleDateString('ar-EG')}</p>
+                        )}
+                      </div>
+                      <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
+                        قادم
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Vaccine Schedule Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-right" dir="rtl">
           <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-            <h3 className="font-bold text-gray-800">جدول التطعيمات</h3>
+            <h3 className="font-bold text-gray-800">جدول التطعيمات الكامل</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-right border-collapse">
@@ -267,10 +376,18 @@ export default function ChildDetailPage() {
                           <>
                             <div className={cn(
                               "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold ring-1",
-                              vaccine.status === 'overdue' ? "bg-red-50 text-red-600 ring-red-100" : "bg-gray-50 text-gray-400 ring-gray-100"
+                              vaccine.status === 'overdue' ? "bg-red-50 text-red-600 ring-red-100" : 
+                              vaccine.status === 'next' ? "bg-orange-50 text-orange-600 ring-orange-100" :
+                              "bg-gray-50 text-gray-400 ring-gray-100"
                             )}>
-                              {vaccine.status === 'overdue' ? <X className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
-                              <span>{vaccine.status === 'overdue' ? 'متأخر' : 'قادم'}</span>
+                              {vaccine.status === 'overdue' ? <X className="w-3.5 h-3.5" /> : 
+                               vaccine.status === 'next' ? <Clock className="w-3.5 h-3.5" /> :
+                               <Clock className="w-3.5 h-3.5" />}
+                              <span>{
+                                vaccine.status === 'overdue' ? 'متأخر' : 
+                                vaccine.status === 'next' ? 'قادم' :
+                                'قادم'
+                              }</span>
                             </div>
                             <Link 
                                href={`/vaccine/${vaccine._id}?childId=${id}&name=${encodeURIComponent(vaccine.title || vaccine.vaccineName || vaccine.name)}`}

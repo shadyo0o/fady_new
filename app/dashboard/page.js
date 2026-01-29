@@ -7,6 +7,7 @@ import api from '@/lib/api/client';
 import StatsCards from '@/components/dashboard/StatsCards';
 import { NextVaccineCard } from '@/components/cards/NextVaccineCard';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
+import VaccinationTable from '@/components/dashboard/VaccinationTable';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -133,7 +134,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoadingVaccine(true);
-      const response = await api.get('/dashboard/');
+      const response = await api.get('/api/dashboard');
       const dashboardData = response.data;
       
       const children = dashboardData?.children || [];
@@ -143,7 +144,7 @@ export default function DashboardPage() {
             try {
               const childId = child.id || child._id;
               const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
-              const res = vaccineResponse.data?.results || vaccineResponse.data || {};
+              const res = vaccineResponse.data?.results || {};
               const upcoming = (res.upcoming?.length || 0) + (res.nextVaccine ? 1 : 0);
               const overdue = res.overdue?.length || 0;
               return { upcoming, overdue };
@@ -231,6 +232,11 @@ export default function DashboardPage() {
                    </div>
                 )}
                 <ActivityFeed activities={data.recentActivity} />
+             </div>
+             
+             {/* Vaccination Table */}
+             <div className="mt-8">
+               <VaccinationTable />
              </div>
              
              {/* Announcements can go here */}
