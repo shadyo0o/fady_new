@@ -134,7 +134,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoadingVaccine(true);
-      const response = await api.get('/api/dashboard');
+      const response = await api.get('/dashboard');
       const dashboardData = response.data;
       
       const children = dashboardData?.children || [];
@@ -236,7 +236,7 @@ export default function DashboardPage() {
              
              {/* Vaccination Table */}
              <div className="mt-8">
-               <VaccinationTable />
+               <VaccinationTable children={data.children} />
              </div>
              
              {/* Announcements can go here */}

@@ -24,6 +24,17 @@ export default function LandingPage() {
             <p className="text-white/90 text-lg"> تنبيهات ذكية: مفيش تطعيم هيفوتك أبداً. </p>
             <p className="text-white/90 text-lg"> توفير وقت: بنحددلك أيام عمل مكتب الصحة الخاص بيك عشان مشوارك يبقى أكيد. </p>
             <p className="text-white/90 text-lg"> دعم كامل: الأوراق المطلوبة لشهادة الميلاد حسب مستشفى ولادتك.. خطوة بخطوة. </p>
+            <p className="text-white/90 text-lg"> دعم كامل: الأوراق المطلوبة لشهادة الميلاد حسب مستشفى ولادتك.. خطوة بخطوة. </p>
+          </div>
+
+          {/* Home Icon */}
+          <div className="absolute top-6 left-6 z-20">
+            <Link href="/home" className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </Link>
           </div>
         
         {/* <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">

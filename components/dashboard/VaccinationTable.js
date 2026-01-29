@@ -14,20 +14,24 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-export default function VaccinationTable() {
+export default function VaccinationTable({ children: propChildren }) {
   const [childrenData, setChildrenData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchVaccinationData();
-  }, []);
+  }, [propChildren]);
 
   const fetchVaccinationData = async () => {
     try {
       setLoading(true);
-      const dashboardResponse = await api.get('/api/dashboard');
-      const children = dashboardResponse.data?.children || [];
+      let children = propChildren;
+      
+      if (!children) {
+        const dashboardResponse = await api.get('/dashboard');
+        children = dashboardResponse.data?.children || [];
+      }
       
       if (children.length === 0) {
         setChildrenData([]);

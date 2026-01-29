@@ -36,7 +36,7 @@ const SigninPage = () => {
         {/* <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
           <Stethoscope className="w-8 h-8 text-[#33AB98]" />
         </div> */}
-                            <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
+            <div className="w-48 h-48 rounded-full bg-white/20 mx-auto mb-6 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white/30">
               <img 
                 src="/logo.png" 
                 alt="Fady" 
