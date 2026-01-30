@@ -194,20 +194,16 @@ import Button from "@/components/ui/Button";
 import MobileLayout from "@/components/layout/MobileLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
-// --- المكون الداخلي الذي يتعامل مع البيانات ---
+// 1. المكون الذي يحتوي على المنطق (يستخدم useSearchParams)
 function PaymentStatusContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
 
-  // 1. فحص حالة النجاح من الرابط
   const isSuccess = searchParams.get('success') === 'true';
-
-  // 2. الحصول على رسالة الخطأ الخام من باي موب
   const rawError = searchParams.get('data.message');
   
-  // 3. دالة ترجمة الأخطاء
   const getArabicErrorMessage = (error) => {
     if (!error) return "لم نتمكن من إتمام عملية الدفع. يرجى المحاولة مرة أخرى.";
     const err = String(error).toLowerCase();
@@ -219,7 +215,6 @@ function PaymentStatusContent() {
   useEffect(() => {
     const verifySubscription = async () => {
       if (isSuccess) {
-        // تأخير بسيط لضمان انتهاء الـ Webhook في الباك إند
         setTimeout(async () => {
           await refreshUser();
           setLoading(false);
@@ -228,81 +223,68 @@ function PaymentStatusContent() {
         setLoading(false);
       }
     };
-
     verifySubscription();
   }, [refreshUser, isSuccess]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
         <div className="w-16 h-16 border-4 border-[#33AB98]/20 border-t-[#33AB98] rounded-full animate-spin mb-4" />
-        <p className="text-gray-500 font-medium font-sans">جاري التحقق من حالة الدفع...</p>
+        <p className="text-gray-500 font-medium">جاري التحقق من حالة الدفع...</p>
       </div>
     );
   }
 
-  // --- شاشة الفشل ---
-  if (!isSuccess) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="relative mb-8">
-          <div className="absolute inset-0 bg-red-100 rounded-full blur-2xl scale-150" />
-          <div className="relative w-24 h-24 bg-red-500 rounded-full flex items-center justify-center shadow-xl">
-            <XCircle className="w-12 h-12 text-white" />
-          </div>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-3 font-sans">عذراً، فشلت العملية</h1>
-        <p className="text-gray-600 mb-8 leading-relaxed max-w-xs mx-auto font-sans">
-          {getArabicErrorMessage(rawError)}
-        </p>
-        <div className="w-full space-y-3">
-          <Button 
-            onClick={() => router.push('/subscription')}
-            className="w-full h-14 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold"
-          >
-            محاولة مرة أخرى
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/home')}
-            className="w-full h-14 rounded-2xl border-2 border-gray-100 text-gray-600 font-bold"
-          >
-            العودة للرئيسية
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- شاشة النجاح ---
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-      <div className="relative mb-8">
-        <div className="absolute inset-0 bg-[#33AB98]/20 rounded-full blur-2xl scale-150 animate-pulse" />
-        <div className="relative w-24 h-24 bg-[#33AB98] rounded-full flex items-center justify-center shadow-xl">
-          <CheckCircle2 className="w-12 h-12 text-white" />
-        </div>
-      </div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-3 font-sans">تم تفعيل اشتراكك بنجاح!</h1>
-      <p className="text-gray-600 mb-8 leading-relaxed max-w-xs mx-auto font-sans">
-        مبروك! تم تفعيل اشتراك <span className="text-[#33AB98] font-bold">Fady's Vaccines</span> لمدة 18 شهر.
-      </p>
-      <Button 
-        onClick={() => router.push('/home')}
-        className="w-full h-14 rounded-2xl bg-[#33AB98] hover:bg-[#288a7b] text-white font-bold"
-      >
-        الذهاب للرئيسية
-      </Button>
+      {!isSuccess ? (
+        <>
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-red-100 rounded-full blur-2xl scale-150" />
+            <div className="relative w-24 h-24 bg-red-500 rounded-full flex items-center justify-center shadow-xl">
+              <XCircle className="w-12 h-12 text-white" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-3">عذراً، فشلت العملية</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed max-w-xs mx-auto">
+            {getArabicErrorMessage(rawError)}
+          </p>
+          <div className="w-full space-y-3">
+            <Button onClick={() => router.push('/subscription')} className="w-full h-14 rounded-2xl bg-red-500 text-white font-bold">
+              محاولة مرة أخرى
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/home')} className="w-full h-14 rounded-2xl border-2 border-gray-100 text-gray-600 font-bold">
+              العودة للرئيسية
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-[#33AB98]/20 rounded-full blur-2xl scale-150 animate-pulse" />
+            <div className="relative w-24 h-24 bg-[#33AB98] rounded-full flex items-center justify-center shadow-xl">
+              <CheckCircle2 className="w-12 h-12 text-white" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-3">تم تفعيل اشتراكك بنجاح!</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed max-w-xs mx-auto">
+            مبروك! تم تفعيل اشتراك <span className="text-[#33AB98] font-bold">Fady's Vaccines</span> لمدة 18 شهر.
+          </p>
+          <Button onClick={() => router.push('/home')} className="w-full h-14 rounded-2xl bg-[#33AB98] text-white font-bold">
+            الذهاب للرئيسية
+          </Button>
+        </>
+      )}
     </div>
   );
 }
 
-// --- المكون الرئيسي المصدر (الذي يحل مشكلة الـ Build) ---
+// 2. المكون الرئيسي الذي يغلف بالـ Suspense (لحماية الـ Build)
 export default function PaymentSuccessPage() {
   return (
     <MobileLayout hideBottomNav>
       <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-white">
           <div className="w-10 h-10 border-4 border-gray-200 border-t-[#33AB98] rounded-full animate-spin" />
         </div>
       }>
