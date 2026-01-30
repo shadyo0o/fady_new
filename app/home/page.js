@@ -103,7 +103,7 @@ export default function HomePage() {
   };
 
   // Helper function to calculate days remaining
-  const calculateDaysRemaining = (dateString) => {
+  const calculateDaysRemaining = (dateString, isOverdue = false) => {
     const vaccineDate = parseArabicDate(dateString);
     if (!vaccineDate) return 0;
 
@@ -114,82 +114,40 @@ export default function HomePage() {
     const diffTime = vaccineDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    return diffDays >= 0 ? diffDays : 0;
-  };
-
-  // Fetch next vaccine for all children and get the earliest one
-  const fetchNextVaccine = async (children, office = null) => {
-    if (!children || children.length === 0) return null;
-
-    try {
-      const nextVaccinePromises = children.map(async (child) => {
-        try {
-          const childId = child.id || child._id;
-          // Add office parameter if selected
-          const url = office 
-            ? `/childs/getNextVaccine/${childId}?office=${encodeURIComponent(office)}`
-            : `/childs/getNextVaccine/${childId}`;
-          const response = await api.get(url);
-          const vaccineData = response.data;
-
-          // Check if there's a next vaccine or next task
-          const vaccineInfo = vaccineData?.nextVaccine || vaccineData?.nextTask;
-          if (!vaccineInfo) return null;
-
-          return {
-            ...vaccineInfo,
-            childId: childId,
-            childName: child.name || child.nameAr || "غير محدد"
-          };
-        } catch (error) {
-          console.error(`Failed to fetch next vaccine for child ${child.id || child._id}`, error);
-          return null;
-        }
-      });
-
-      const results = await Promise.all(nextVaccinePromises);
-      const validResults = results.filter(r => r !== null);
-
-      if (validResults.length === 0) return null;
-
-      // Sort by date and get the earliest one
-      validResults.sort((a, b) => {
-        const dateA = parseArabicDate(a.date);
-        const dateB = parseArabicDate(b.date);
-        if (!dateA || !dateB) return 0;
-        return dateA - dateB;
-      });
-
-      const earliest = validResults[0];
-      return {
-        vaccineName: earliest.title,
-        childName: earliest.childName,
-        dueDate: earliest.date,
-        day: earliest.day, // اليوم (مثل "السبت"، "الثلاثاء")
-        daysRemaining: calculateDaysRemaining(earliest.date),
-        childId: earliest.childId,
-        office: earliest.office, // اسم المكتب
-        warning: earliest.warning // تحذيرات خاصة (مثل الدرن غير متوفر في شبرا)
-      };
-    } catch (error) {
-      console.error("Error fetching next vaccine:", error);
-      return null;
-    }
+    // If it's explicitly an overdue vaccine, the days should be negative or 0
+    return diffDays;
   };
 
   const fetchDashboard = async () => {
     try {
+      setLoading(true); // Ensure loading state is true at start
       const response = await api.get('/dashboard');
       const dashboardData = response.data;
       
-      // Fetch vaccine data for each child to calculate progress
+      // Fetch vaccine data for each child to calculate progress AND determing next vaccine
       const children = dashboardData?.children || [];
+      const allNextVaccines = [];
+
       if (children.length > 0) {
+        // Get selected office from state or localStorage, or use first child's office
+        const savedOffice = localStorage.getItem('selectedOffice');
+        let officeToUse = selectedOffice || savedOffice || children[0]?.healthOffice || null;
+
+        // If explicitly selecting an office via UI, we might want to prioritize that
+        // But for initial load, the above logic holds.
+
         const childrenWithProgress = await Promise.all(
           children.map(async (child) => {
             try {
               const childId = child.id || child._id;
-              const vaccineResponse = await api.get(`/childs/getDueVaccines/${childId}`);
+              
+              // We use getDueVaccines because it accurately calculates Overdue, Taken, Upcoming
+              // passing the office parameter if available to get office-specific rules
+              const vaccineUrl = officeToUse 
+                ? `/childs/getDueVaccines/${childId}?office=${encodeURIComponent(officeToUse)}`
+                : `/childs/getDueVaccines/${childId}`;
+
+              const vaccineResponse = await api.get(vaccineUrl);
               const vaccineData = vaccineResponse.data;
               
               // Extract data using the correct structure with results wrapper
@@ -201,6 +159,90 @@ export default function HomePage() {
               
               const totalVaccines = takenCount + overdueCount + upcomingCount + nextCount;
               const completedVaccines = takenCount;
+
+              // Determine the "Priority Vaccine" for this child
+              // New Logic:
+              // 1. Primary Display: Next Future Vaccine (nextVaccine or first upcoming)
+              // 2. Overdue Warning: If overdue exists, flag it.
+              
+              let priorityVaccine = null;
+              let hasOverdue = res.overdue && res.overdue.length > 0;
+
+
+
+              // Find the primary future vaccine date
+              let primaryFuture = null;
+              if (res.nextVaccine) {
+                 primaryFuture = res.nextVaccine;
+              } else if (res.upcoming && res.upcoming.length > 0) {
+                 primaryFuture = res.upcoming[0];
+              }
+
+              if (primaryFuture) {
+                 // Grouping Logic: Find all vaccines sharing this same expected date
+                 const targetDate = primaryFuture.expectedDate || primaryFuture.date;
+                 
+                 // Normalize date for comparison (yyyy-mm-dd or similar)
+                 // Note: expectedDate from API often comes as YYYY-MM-DD string
+                 
+                 const concurrentVaccines = [];
+                 
+                 // Check nextVaccine
+                 if (res.nextVaccine) {
+                    const d = res.nextVaccine.expectedDate || res.nextVaccine.date;
+                    if (d === targetDate) concurrentVaccines.push(res.nextVaccine);
+                 }
+                 
+                 // Check upcoming
+                 if (res.upcoming && res.upcoming.length > 0) {
+                    res.upcoming.forEach(v => {
+                        const d = v.expectedDate || v.date;
+                        if (d === targetDate) {
+                            // Avoid duplicates if nextVaccine is also in upcoming (unlikely but safe to check id)
+                            if (!concurrentVaccines.find(c => c._id === v._id)) {
+                                concurrentVaccines.push(v);
+                            }
+                        }
+                    });
+                 }
+
+                 if (concurrentVaccines.length > 1) {
+                    // Create composite title
+                    const combinedTitles = concurrentVaccines.map(v => v.title).join(" + ");
+                    // You might want to combine advice too, or just take the first one
+                    const combinedAdvice = concurrentVaccines.map(v => v.advice || v.warning).filter(Boolean).join("\n\n");
+                    
+                    priorityVaccine = {
+                        ...primaryFuture,
+                        title: combinedTitles,
+                        advice: combinedAdvice
+                    };
+                 } else {
+                    priorityVaccine = primaryFuture;
+                 }
+
+              } else if (hasOverdue) {
+                 // Fallback: If NO future vaccine exists (e.g., end of schedule), but there are overdue
+                 priorityVaccine = res.overdue[0];
+              }
+
+              if (priorityVaccine) {
+                const specificOverdueWarning = hasOverdue 
+                  ? "⚠️ يوجد تطعيمات فائتة لم يتم تسجيلها بعد، يرجى الذهاب الى ايكونه تسجيل تطعيم و الذهاب الى الاسفل و الضغط على تسجيل امام التطعيم المتاخر ."
+                  : null;
+
+                allNextVaccines.push({
+                   vaccineName: priorityVaccine.title,
+                   childName: child.name || child.nameAr || "غير محدد",
+                   dueDate: priorityVaccine.expectedDate || priorityVaccine.date,
+                   day: priorityVaccine.dayName || priorityVaccine.day, 
+                   daysRemaining: calculateDaysRemaining(priorityVaccine.expectedDate || priorityVaccine.date),
+                   childId: childId,
+                   office: vaccineData.currentOffice || officeToUse,
+                   warning: priorityVaccine.advice || priorityVaccine.warning, // Existing medical advice/warnings
+                   overdueWarning: specificOverdueWarning // New specific overdue warning
+                });
+              }
 
               return {
                 ...child,
@@ -220,14 +262,6 @@ export default function HomePage() {
         
         dashboardData.children = childrenWithProgress;
 
-        // Get selected office from state or localStorage, or use first child's office
-        const savedOffice = localStorage.getItem('selectedOffice');
-        const officeToUse = selectedOffice || savedOffice || childrenWithProgress[0]?.healthOffice || null;
-        
-        // Fetch next vaccine data with selected office
-        const nextVaccine = await fetchNextVaccine(childrenWithProgress, officeToUse);
-        setNextVaccineData(nextVaccine);
-        
         // Set selected office if not already set
         if (!selectedOffice && officeToUse) {
           setSelectedOffice(officeToUse);
@@ -236,12 +270,22 @@ export default function HomePage() {
           }
         }
       }
+
+      // Determine the global next vaccine from all children
+      if (allNextVaccines.length > 0) {
+          // Sort by days remaining (lowest/most negative first)
+          allNextVaccines.sort((a, b) => a.daysRemaining - b.daysRemaining);
+          setNextVaccineData(allNextVaccines[0]);
+      } else {
+          setNextVaccineData(null);
+      }
       
       setData(dashboardData);
     } catch (error) {
       console.error("Home fetch error:", error);
     } finally {
       setLoading(false);
+      setLoadingVaccine(false);
     }
   };
 
@@ -251,20 +295,39 @@ export default function HomePage() {
   // Handle office selection change
   const handleOfficeSelect = async (office) => {
     setSelectedOffice(office);
-    // Save to localStorage
     localStorage.setItem('selectedOffice', office);
     
-    if (data?.children && data.children.length > 0) {
-      setLoadingVaccine(true);
-      try {
-        const nextVaccine = await fetchNextVaccine(data.children, office);
-        setNextVaccineData(nextVaccine);
-      } catch (error) {
-        console.error("Error fetching vaccine for selected office:", error);
-      } finally {
-        setLoadingVaccine(false);
-      }
-    }
+    // Refetch dashboard to update calculations based on new office rules
+    // We reuse fetchDashboard but we need to ensure it uses the new office.
+    // Since fetchDashboard reads state/localStorage, and state updates are async,
+    // it's safer to reload or reload data specifically.
+    // However, fetchDashboard relies on closure or state. 
+    // Best approach here: set loadingVaccine, then call fetchDashboard logic manually or rely on effect?
+    // Actually, simply calling fetchDashboard() again might pick up the old state if called immediately.
+    // But we just updated localStorage.
+    
+    setLoadingVaccine(true);
+    // Slight delay to ensure state/storage propagation if needed, or just pass office explicitly to a new function?
+    // To avoid rewriting `fetchDashboard` signatures too much, we'll assume it picks up `selectedOffice` from state if we wait/pass it.
+    // But `selectedOffice` state update is async. 
+    // Let's modify fetchDashboard to accept an optional office override? 
+    // For now, simpler: Trigger a full refresh logic or reload page? No, that's bad UX.
+    
+    // Let's rely on the fact that we updated localStorage which `fetchDashboard` reads?
+    // No, `fetchDashboard` reads `selectedOffice` state primarily in the loop logic I wrote above:
+    // `let officeToUse = selectedOffice || savedOffice ...`
+    // Since we updated state `setSelectedOffice(office)`, the next render `fetchDashboard` would see it.
+    // But we want to trigger it NOW.
+    
+    // WORKAROUND: Force a specialized fetch for just the next vaccine? 
+    // OR: just call fetchDashboard. The only catch is `selectedOffice` state variable inside `fetchDashboard` scope 
+    // refers to the render-time value.
+    // We can pass `office` as an argument to `fetchDashboard`?
+    
+    // Let's make it simpler: reload the dashboard data.
+    window.location.reload(); // Simplest way to ensure all calculations use the new office consistently across all components.
+    // OR:
+    // fetchDataWithOffice(office); 
   };
 
   if (loading) {
@@ -363,6 +426,7 @@ export default function HomePage() {
                 childId={nextVaccine.childId}
                 office={nextVaccine.office}
                 warning={nextVaccine.warning}
+                overdueWarning={nextVaccine.overdueWarning}
               />
             </div>
           ) : null}

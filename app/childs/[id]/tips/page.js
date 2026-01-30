@@ -74,19 +74,19 @@ export default function ChildTipsPage() {
       setChild(childData);
 
       // Robust Schedule/Tips Fetch
-      const sRes = await api.get(`/childs/getDueVaccines/${id}`);
+      // Switched to getNextVaccine as it contains rich tips data including medicalTips
+      const sRes = await api.get(`/childs/getNextVaccine/${id}`);
       const data = sRes.data || {};
-      const res = data.results || data.data || data || {};
       
-      // Combine all sources of tips
-      const allItems = [
-        ...(Array.isArray(res.info) ? res.info : []),
-        ...(Array.isArray(res.overdue) ? res.overdue : []),
-        ...(res.nextVaccine ? [res.nextVaccine] : []),
-        ...(Array.isArray(res.upcoming) ? res.upcoming : []),
-        ...(Array.isArray(res.taken) ? res.taken : [])
-      ].filter(item => 
-        item && (item.advice || item.nutrition || item.tips || item.documents || item.important)
+      const nextVaccines = data.nextVaccines || [];
+      const nextVaccine = data.nextVaccine || null;
+      
+      // Merge nextVaccine if not in the list or if list is empty?
+      // Based on user example, nextVaccines seems comprehensive. 
+      // We will use nextVaccines as primary source.
+      
+      const allItems = nextVaccines.filter(item => 
+        item && (item.advice || item.nutrition || item.tips || item.documents || item.important || (item.medicalTips && item.medicalTips.length > 0))
       );
 
       setVaccineTips(allItems);
@@ -183,7 +183,8 @@ export default function ChildTipsPage() {
               item.nutrition,
               item.tips,
               item.documents,
-              item.important
+              item.important,
+              (item.medicalTips && item.medicalTips.length > 0)
             ].filter(Boolean).length > 1;
 
             return (
@@ -267,7 +268,38 @@ export default function ChildTipsPage() {
                       </div>
                     )}
 
-                    {/* Tips Section */}
+                    {/* Medical Tips Section (New from Backend) */}
+                    {item.medicalTips && item.medicalTips.length > 0 && (
+                      <div className="bg-pink-50/50 rounded-xl p-4 border border-pink-100 animate-in fade-in slide-in-from-right">
+                        <div className="flex gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <Lightbulb className="w-5 h-5 text-pink-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                              <span>⚕️</span> نصائح طبية هامة
+                            </h4>
+                            <div className="space-y-3">
+                              {item.medicalTips.filter(t => t && (t.isActive === undefined || t.isActive)).map((tip, tIdx) => (
+                                <div key={tIdx} className="bg-white rounded-lg border border-gray-100 p-3 shadow-sm">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <p className="font-bold text-gray-800 text-sm">{tip.title}</p>
+                                    {tip.category && (
+                                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 font-medium">
+                                        {tip.category.replace(/_/g, ' ')}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-600 leading-relaxed mt-1">{tip.content}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* General Tips Section */}
                     {item.tips && (
                       <div className="bg-purple-50/50 rounded-xl p-4 border border-purple-100 animate-in fade-in slide-in-from-right">
                         <div className="flex gap-3">
@@ -276,10 +308,9 @@ export default function ChildTipsPage() {
                           </div>
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
-                              <span>⚕️</span> نصائح طبية عامة
+                              <span>🧠</span> تنمية المهارات
                             </h4>
                             <p className="text-sm text-gray-700 leading-relaxed">{item.tips}</p>
-                            <p className="text-[10px] text-gray-500 mt-2">هذه المعلومات للإرشاد فقط، في حال استمرار الأعراض يرجى مراجعة الطبيب فوراً</p>
                           </div>
                         </div>
                       </div>
@@ -314,7 +345,6 @@ export default function ChildTipsPage() {
                               <span>⚠️</span> تنبيه مهم جداً
                             </h4>
                             <p className="text-sm text-red-700 leading-relaxed font-medium">{item.important}</p>
-                            <p className="text-[10px] text-gray-500 mt-2">هذه المعلومات للإرشاد فقط، في حال استمرار الأعراض يرجى مراجعة الطبيب فوراً</p>
                           </div>
                         </div>
                       </div>

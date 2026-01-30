@@ -98,6 +98,11 @@ const EditChild = () => {
     try {
         // Using the correct endpoint for updating child (PATCH as per backend)
         await api.patch(`/childs/editChild/${id}`, formData);
+        
+        // Refresh the router cache to ensure all pages (Home, ChildDetails, etc.) 
+        // fetch fresh data next time they are rendered.
+        router.refresh(); 
+        
         router.push('/home'); 
     } catch (err) {
         console.error(err);

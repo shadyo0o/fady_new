@@ -67,9 +67,58 @@ const NextVaccinePageContent = () => {
     );
   }
 
-  const vaccineInfo = data?.nextVaccine || data?.nextTask;
+  // Process data to group concurrent vaccines
+  const rawList = data?.nextVaccines || (data?.nextVaccine ? [data.nextVaccine] : []) || (data?.nextTask ? [data.nextTask] : []);
+  
+  let vaccineInfo = null;
+  
+  if (rawList.length > 0) {
+      // Sort by priority/date if needed, but usually API gives ordered list. 
+      // We assume the first item is the target "Next" one.
+      const primary = rawList[0];
+      const targetDate = primary.date;
+      
+      // Find all vaccines on this date
+      const concurrent = rawList.filter(v => v.date === targetDate);
+      
+      if (concurrent.length > 1) {
+          // Merge Data
+          const combinedTitle = concurrent.map(v => v.title).join(' + ');
+          
+          // Merge textual fields unique values
+          const mergeField = (field) => [...new Set(concurrent.map(v => v[field]).filter(Boolean))].join('\n\n');
+          
+          // Merge arrays (medicalTips)
+          const allMedicalTips = concurrent.flatMap(v => v.medicalTips || []);
+          // Deduplicate Medical Tips by title
+          const uniqueMedicalTips = [];
+          const map = new Map();
+          for (const item of allMedicalTips) {
+              if(!map.has(item.title)){
+                  map.set(item.title, true);
+                  uniqueMedicalTips.push(item);
+              }
+          }
+
+          vaccineInfo = {
+              ...primary,
+              title: combinedTitle,
+              advice: mergeField('advice'),
+              nutrition: mergeField('nutrition'),
+              tips: mergeField('tips'),
+              documents: mergeField('documents'),
+              important: mergeField('important'),
+              warning: mergeField('warning'),
+              medicalTips: uniqueMedicalTips
+          };
+      } else {
+          vaccineInfo = primary;
+      }
+  }
+
   const isTask = !!data?.nextTask;
-  const isNewbornScreening = !!(vaccineInfo?.title && vaccineInfo.title.includes('الغدة') && vaccineInfo.title.includes('السمع'));
+  // Check if any of the concurrent vaccines involve newborn screening
+  const isNewbornScreening = vaccineInfo?.title && (vaccineInfo.title.includes('الغدة') || vaccineInfo.title.includes('الدرن'));
 
   if (!vaccineInfo) {
     return (

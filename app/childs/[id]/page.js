@@ -73,11 +73,55 @@ export default function ChildDetailPage() {
       // Robust Schedule Fetch
       const sRes = await api.get(`/childs/getDueVaccines/${id}`);
       const scheduleData = sRes.data;
+      
+      // Fetch Next Vaccine Data (for grouping support and better future data)
+      let nextVaccinesList = [];
+      try {
+        const nRes = await api.get(`/childs/getNextVaccine/${id}`);
+        nextVaccinesList = nRes.data.nextVaccines || 
+                          (nRes.data.nextVaccine ? [nRes.data.nextVaccine] : []) || [];
+      } catch (err) {
+        console.warn("Failed to fetch next vaccines", err);
+      }
+
       setSchedule(scheduleData);
       
-      // Store the results separately for easier access
+      // Store the results separately but override upcoming/next with our grouped list
       if (scheduleData.results) {
-        setVaccineData(scheduleData.results);
+        const results = { ...scheduleData.results };
+        
+        if (nextVaccinesList.length > 0) {
+            // Grouping Logic
+            const groups = {};
+            nextVaccinesList.forEach(v => {
+                const d = v.date; // "YYYY-MM-DD"
+                if (!groups[d]) groups[d] = [];
+                groups[d].push(v);
+            });
+
+            // Convert groups to array and sort by date
+            const sortedGroups = Object.keys(groups).sort().map(date => {
+                const group = groups[date];
+                const first = group[0];
+                if (group.length === 1) return first;
+                
+                return {
+                    ...first,
+                    title: group.map(g => g.title).join(' + '),
+                    vaccineName: group.map(g => g.title).join(' + '),
+                    // Merge other IDs if needed for linking? 
+                    // Ideally we pick the "primary" ID for link, or maybe disable link if complex?
+                    // For now, let's keep the first ID so the button works for at least one.
+                    _id: first._id
+                };
+            });
+
+            // The first group is "Next", rest are "Upcoming"
+            results.nextVaccine = sortedGroups[0];
+            results.upcoming = sortedGroups.slice(1);
+        }
+
+        setVaccineData(results);
       } else {
         setVaccineData({});
       }

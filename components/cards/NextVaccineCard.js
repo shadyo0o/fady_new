@@ -3,7 +3,7 @@
 import { Calendar, ChevronLeft, Info } from 'lucide-react';
 import Link from 'next/link';
 
-export const NextVaccineCard = ({ vaccineName, childName, dueDate, day, daysRemaining, childId, office, warning }) => {
+export const NextVaccineCard = ({ vaccineName, childName, dueDate, day, daysRemaining, childId, office, warning, overdueWarning }) => {
   // Helper function to format date display
   const formatDateDisplay = (dateValue) => {
     if (!dateValue) return "غير محدد";
@@ -63,6 +63,20 @@ export const NextVaccineCard = ({ vaccineName, childName, dueDate, day, daysRema
             )}
         </div>
       </div>
+
+      {/* Overdue Warning - High Priority */}
+      {overdueWarning && (
+        <div className="mt-4 pt-4 border-t border-white/10 animate-pulse">
+          <div className="bg-yellow-500/30 border border-yellow-200/50 rounded-lg p-3 backdrop-blur-sm">
+            <div className="flex items-start gap-2">
+              <Info className="w-5 h-5 text-yellow-100 mt-0.5 flex-shrink-0" />
+              <p className="text-xs font-bold text-yellow-50 leading-relaxed">
+                {overdueWarning}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Warning message for offices without BCG */}
       {office && (office.includes('شبرا') || office.includes('سعد')) && warning && (
