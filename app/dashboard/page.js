@@ -5,9 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api/client';
 import StatsCards from '@/components/dashboard/StatsCards';
-import { NextVaccineCard } from '@/components/cards/NextVaccineCard';
+import { SmartVisitPackageCard } from '@/components/cards/SmartVisitPackageCard';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import VaccinationTable from '@/components/dashboard/VaccinationTable';
+import { createVisitPackage, normalizeDateForComparison, calculateDaysRemaining } from '@/lib/utils/vaccineGrouping';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -91,13 +92,26 @@ export default function DashboardPage() {
             : `/childs/getNextVaccine/${childId}`;
           const response = await api.get(url);
           const vaccineData = response.data;
-          const vaccineInfo = vaccineData?.nextVaccine || vaccineData?.nextTask;
-          if (!vaccineInfo) return null;
+          
+          // Get both nextTask and nextVaccines array
+          const nextTask = vaccineData?.nextTask || vaccineData?.nextVaccine;
+          const nextVaccines = vaccineData?.nextVaccines || (nextTask ? [nextTask] : []);
+          
+          if (!nextTask) return null;
 
           return {
-            ...vaccineInfo,
-            childId: childId,
-            childName: child.name || child.nameAr || "غير محدد"
+            nextTask: {
+              ...nextTask,
+              childId: childId,
+              childName: child.name || child.nameAr || "غير محدد",
+              daysRemaining: calculateDaysRemaining(nextTask.date)
+            },
+            nextVaccines: nextVaccines.map(v => ({
+              ...v,
+              childId: childId,
+              childName: child.name || child.nameAr || "غير محدد",
+              daysRemaining: calculateDaysRemaining(v.date)
+            }))
           };
         } catch (error) {
           return null;
@@ -108,25 +122,26 @@ export default function DashboardPage() {
       const validResults = results.filter(r => r !== null);
       if (validResults.length === 0) return null;
 
+      // Sort by earliest date
       validResults.sort((a, b) => {
-        const dateA = parseArabicDate(a.date);
-        const dateB = parseArabicDate(b.date);
+        const dateA = parseArabicDate(a.nextTask.date);
+        const dateB = parseArabicDate(b.nextTask.date);
         if (!dateA || !dateB) return 0;
         return dateA - dateB;
       });
 
+      // Get the earliest appointment's data
       const earliest = validResults[0];
-      return {
-        vaccineName: earliest.title,
-        childName: earliest.childName,
-        dueDate: earliest.date,
-        day: earliest.day,
-        daysRemaining: calculateDaysRemaining(earliest.date),
-        childId: earliest.childId,
-        office: earliest.office,
-        warning: earliest.warning
-      };
+      
+      // Create the smart visit package with grouped vaccines
+      const visitPackage = createVisitPackage(
+        earliest.nextVaccines,
+        earliest.nextTask
+      );
+
+      return visitPackage;
     } catch (error) {
+      console.error("Error in fetchNextVaccine:", error);
       return null;
     }
   };
@@ -216,15 +231,8 @@ export default function DashboardPage() {
                       <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                    </div>
                 ) : nextVaccineData ? (
-                   <NextVaccineCard
-                      vaccineName={nextVaccineData.vaccineName}
-                      childName={nextVaccineData.childName}
-                      dueDate={nextVaccineData.dueDate}
-                      day={nextVaccineData.day}
-                      daysRemaining={nextVaccineData.daysRemaining}
-                      childId={nextVaccineData.childId}
-                      office={nextVaccineData.office}
-                      warning={nextVaccineData.warning}
+                   <SmartVisitPackageCard
+                      visitPackage={nextVaccineData}
                    />
                 ) : (
                    <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center">

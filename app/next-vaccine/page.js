@@ -2,9 +2,10 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Calendar, MapPin, FileText, Lightbulb, AlertCircle, CheckCircle, Baby } from "lucide-react";
+import { ArrowRight, Calendar, MapPin, FileText, Lightbulb, AlertCircle, CheckCircle, Baby, AlertTriangle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import api from "@/lib/api/client";
+import { createVisitPackage } from "@/lib/utils/vaccineGrouping";
 
 const NextVaccinePageContent = () => {
   const router = useRouter();
@@ -67,53 +68,51 @@ const NextVaccinePageContent = () => {
     );
   }
 
-  // Process data to group concurrent vaccines
-  const rawList = data?.nextVaccines || (data?.nextVaccine ? [data.nextVaccine] : []) || (data?.nextTask ? [data.nextTask] : []);
+  // Use smart grouping to process concurrent vaccines on same date
+  const nextTask = data?.nextTask || data?.nextVaccine;
+  const nextVaccines = data?.nextVaccines || (nextTask ? [nextTask] : []);
   
   let vaccineInfo = null;
+  let visitPackage = null;
   
-  if (rawList.length > 0) {
-      // Sort by priority/date if needed, but usually API gives ordered list. 
-      // We assume the first item is the target "Next" one.
-      const primary = rawList[0];
-      const targetDate = primary.date;
+  if (nextTask) {
+    visitPackage = createVisitPackage(nextVaccines, nextTask);
+    
+    if (visitPackage && visitPackage.allVaccines && visitPackage.allVaccines.length > 1) {
+      // Multiple vaccines on the same date - merge their data intelligently
+      const concurrent = visitPackage.allVaccines;
+      const combinedTitle = concurrent.map(v => v.title).join(' + ');
       
-      // Find all vaccines on this date
-      const concurrent = rawList.filter(v => v.date === targetDate);
+      // Merge textual fields - combine unique values
+      const mergeField = (field) => [...new Set(concurrent.map(v => v[field]).filter(Boolean))].join('\n\n');
       
-      if (concurrent.length > 1) {
-          // Merge Data
-          const combinedTitle = concurrent.map(v => v.title).join(' + ');
-          
-          // Merge textual fields unique values
-          const mergeField = (field) => [...new Set(concurrent.map(v => v[field]).filter(Boolean))].join('\n\n');
-          
-          // Merge arrays (medicalTips)
-          const allMedicalTips = concurrent.flatMap(v => v.medicalTips || []);
-          // Deduplicate Medical Tips by title
-          const uniqueMedicalTips = [];
-          const map = new Map();
-          for (const item of allMedicalTips) {
-              if(!map.has(item.title)){
-                  map.set(item.title, true);
-                  uniqueMedicalTips.push(item);
-              }
-          }
-
-          vaccineInfo = {
-              ...primary,
-              title: combinedTitle,
-              advice: mergeField('advice'),
-              nutrition: mergeField('nutrition'),
-              tips: mergeField('tips'),
-              documents: mergeField('documents'),
-              important: mergeField('important'),
-              warning: mergeField('warning'),
-              medicalTips: uniqueMedicalTips
-          };
-      } else {
-          vaccineInfo = primary;
+      // Merge arrays (medicalTips) and deduplicate
+      const allMedicalTips = concurrent.flatMap(v => v.medicalTips || []);
+      const uniqueMedicalTips = [];
+      const tipMap = new Map();
+      for (const item of allMedicalTips) {
+        if (!tipMap.has(item.title)) {
+          tipMap.set(item.title, true);
+          uniqueMedicalTips.push(item);
+        }
       }
+
+      vaccineInfo = {
+        ...nextTask,
+        title: combinedTitle,
+        advice: mergeField('advice'),
+        nutrition: mergeField('nutrition'),
+        tips: mergeField('tips'),
+        documents: mergeField('documents'),
+        important: mergeField('important'),
+        warning: mergeField('warning'),
+        medicalTips: uniqueMedicalTips,
+        groupedVaccines: concurrent,
+        isGrouped: true
+      };
+    } else {
+      vaccineInfo = nextTask;
+    }
   }
 
   const isTask = !!data?.nextTask;
@@ -178,10 +177,34 @@ const NextVaccinePageContent = () => {
                 </div>
               </div>
               
-              {/* Warning */}
+              {/* Warnings Section */}
               {vaccineInfo.warning && (
-                <div className="bg-red-500/20 border border-red-300/30 rounded-lg p-3 mt-3 backdrop-blur-sm">
-                  <p className="text-sm font-medium">{vaccineInfo.warning}</p>
+                <div className="bg-red-500/20 border border-red-300/30 rounded-lg p-3 mt-3 backdrop-blur-sm animate-pulse">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-5 h-5 text-red-100 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-medium text-red-50">{vaccineInfo.warning}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Unavailable Vaccines Warnings */}
+              {vaccineInfo.isGrouped && vaccineInfo.groupedVaccines && vaccineInfo.groupedVaccines.some(v => v.isAvailable === false) && (
+                <div className="space-y-2 mt-3">
+                  {vaccineInfo.groupedVaccines
+                    .filter(v => v.isAvailable === false)
+                    .map((vaccine, idx) => (
+                      <div key={idx} className="bg-orange-500/20 border border-orange-300/30 rounded-lg p-3 backdrop-blur-sm">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-orange-100 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-orange-50">❌ {vaccine.title} غير متوفر</p>
+                            {vaccine.warning && (
+                              <p className="text-xs text-orange-100 mt-1">{vaccine.warning}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
@@ -199,6 +222,46 @@ const NextVaccinePageContent = () => {
                 </div>
               </div>
             </div>
+
+            {/* Grouped Vaccines Display - Show all vaccines in this visit package */}
+            {vaccineInfo.isGrouped && vaccineInfo.groupedVaccines && vaccineInfo.groupedVaccines.length > 1 && (
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800 mb-3">حزمة الزيارة الموحدة</h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      في هذا الموعد، سيتم إعطاء عدة تطعيمات معاً:
+                    </p>
+                    <div className="space-y-2">
+                      {vaccineInfo.groupedVaccines.map((vaccine, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`p-3 rounded-lg border ${
+                            vaccine.isAvailable === false 
+                              ? 'bg-red-50 border-red-200' 
+                              : 'bg-green-50 border-green-200'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm font-bold text-gray-800">
+                                {vaccine.isAvailable === false && '❌ '}{vaccine.title}
+                              </p>
+                              {vaccine.isAvailable === false && vaccine.warning && (
+                                <p className="text-xs text-red-600 mt-1">{vaccine.warning}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Advice Section */}
             {(vaccineInfo.advice || isNewbornScreening) && (
