@@ -91,8 +91,11 @@ export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick, onRecordSu
           <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-xs font-medium mb-2 border border-white/10">
             حزمة الزيارة القادمة
           </span>
-          <h3 className="text-lg font-bold mb-1">
-            {vaccineCount > 1 ? `${vaccineCount} تطعيمات معاً` : 'تطعيم قادم'}
+          {/* Unified Title with all vaccines */}
+          <h3 className="text-base font-bold mb-2 line-clamp-3 leading-snug">
+            {vaccineTitles && vaccineTitles.length > 0
+              ? vaccineTitles.join(' + ')
+              : 'تطعيم قادم'}
           </h3>
           <p className="text-blue-100 text-sm">للطفل: {childName || 'غير محدد'}</p>
           {office && (
@@ -126,27 +129,37 @@ export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick, onRecordSu
         </div>
       </div>
 
-      {/* Advice Section */}
-      {advice && (
+      {/* Static Warning Alert for Unavailable Vaccines */}
+      {unavailableVaccines && unavailableVaccines.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-white/10 relative z-10 space-y-2">
+          {/* Display each unavailable vaccine's specific warning */}
+          {unavailableVaccines.map((vaccine, idx) => (
+            <div key={idx} className="bg-orange-500/40 backdrop-blur-sm rounded-lg p-3 border border-orange-300/60 animate-pulse">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-orange-50 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-orange-50 leading-relaxed">
+                    ❌ {vaccine.title} غير متوفر في {office || 'المكتب الصحي'}
+                  </p>
+                  {vaccine.warning && (
+                    <p className="text-xs text-orange-100 mt-1 leading-relaxed">
+                      {vaccine.warning}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* General Advice Section (only if no warnings) */}
+      {advice && (!unavailableVaccines || unavailableVaccines.length === 0) && (
         <div className="mt-3 pt-3 border-t border-white/10 relative z-10">
           <div className="bg-blue-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-300/30">
             <div className="flex items-start gap-2">
               <Info className="w-4 h-4 text-blue-100 mt-0.5 flex-shrink-0" />
               <p className="text-xs font-medium text-blue-50 leading-relaxed">{advice}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Critical BCG Warning - Red Alert */}
-      {bcgWarning && (
-        <div className="mt-3 pt-3 border-t border-white/10 relative z-10 animate-pulse">
-          <div className="bg-red-600/30 backdrop-blur-sm rounded-lg p-3 border border-red-300/50">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-red-100 mt-0.5 flex-shrink-0" />
-              <p className="text-xs font-bold text-red-50 leading-relaxed">
-                ⚠️ تحذير: {bcgWarning}
-              </p>
             </div>
           </div>
         </div>

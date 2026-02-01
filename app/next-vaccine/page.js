@@ -76,7 +76,14 @@ const NextVaccinePageContent = () => {
   let visitPackage = null;
   
   if (nextTask) {
+    // Import normalizeDateForComparison here
     visitPackage = createVisitPackage(nextVaccines, nextTask);
+    
+    // Ensure consistent date formatting
+    if (visitPackage) {
+      // Keep date in YYYY-MM-DD format for consistency
+      visitPackage.date = visitPackage.date || nextTask.date;
+    }
     
     if (visitPackage && visitPackage.allVaccines && visitPackage.allVaccines.length > 1) {
       // Multiple vaccines on the same date - merge their data intelligently
