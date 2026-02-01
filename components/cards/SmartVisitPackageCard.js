@@ -1,17 +1,22 @@
 'use client';
 
-import { Calendar, ChevronLeft, Info, AlertCircle, Package } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar, ChevronLeft, Info, AlertCircle, Package, Check, Clock } from 'lucide-react';
 import { useState } from 'react';
+import api from '@/lib/api/client';
+import { showToast } from '@/lib/toast';
+import RecordVaccineModal from '@/components/child/RecordVaccineModal';
 
 /**
  * SmartVisitPackageCard
- * Displays a grouped visit package with all vaccines scheduled for the same date
- * Includes special warnings for unavailable vaccines (e.g., BCG)
+ * Displays a grouped visit package with independent recording buttons for each vaccine.
+ * Each vaccine can be recorded separately as it's administered.
  */
-export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick }) => {
-  const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick, onRecordSuccess }) => {
+  const [recordedVaccines, setRecordedVaccines] = useState({});
+  const [recordingVaccineId, setRecordingVaccineId] = useState(null);
+  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [selectedVaccineForRecord, setSelectedVaccineForRecord] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!visitPackage) {
     return (
@@ -37,11 +42,41 @@ export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick }) => {
     warning
   } = visitPackage;
 
-  const handleVaccineClick = (vaccine) => {
-    setSelectedVaccine(vaccine);
-    setShowDetails(true);
-    if (onVaccineClick) {
-      onVaccineClick(vaccine);
+  /**
+   * Handle opening record modal for a specific vaccine
+   */
+  const handleOpenRecordModal = (vaccine) => {
+    if (vaccine.isAvailable === false) {
+      showToast.warning(`${vaccine.title} غير متوفر في الوقت الحالي`);
+      return;
+    }
+    
+    if (recordedVaccines[vaccine.scheduleId]) {
+      showToast.info(`تم تسجيل ${vaccine.title} مسبقاً`);
+      return;
+    }
+
+    setSelectedVaccineForRecord(vaccine);
+    setShowRecordModal(true);
+  };
+
+  /**
+   * Handle successful vaccine recording
+   */
+  const handleRecordSuccess = () => {
+    if (selectedVaccineForRecord) {
+      setRecordedVaccines(prev => ({
+        ...prev,
+        [selectedVaccineForRecord.scheduleId]: true
+      }));
+      showToast.success(`تم تسجيل ${selectedVaccineForRecord.title} بنجاح ✅`);
+      setShowRecordModal(false);
+      setSelectedVaccineForRecord(null);
+      
+      // Call parent callback if provided
+      if (onRecordSuccess) {
+        onRecordSuccess(selectedVaccineForRecord);
+      }
     }
   };
 
@@ -117,52 +152,87 @@ export const SmartVisitPackageCard = ({ visitPackage, onVaccineClick }) => {
         </div>
       )}
 
-      {/* Grouped Vaccines List */}
+      {/* Independent Vaccine Recording Checklist */}
       <div className="mt-4 pt-4 border-t border-white/10 relative z-10">
-        <p className="text-xs text-blue-100 mb-2 font-medium">التطعيمات المجدولة:</p>
+        <p className="text-xs text-blue-100 mb-3 font-medium">تسجيل التطعيمات:</p>
         <div className="space-y-2">
-          {vaccineTitles.map((title, idx) => {
-            const vaccine = allVaccines[idx];
-            const isUnavailable = vaccine?.isAvailable === false;
+          {allVaccines.map((vaccine, idx) => {
+            const isRecorded = recordedVaccines[vaccine.scheduleId];
+            const isUnavailable = vaccine.isAvailable === false;
+            const isButtonDisabled = isUnavailable || isRecorded;
             
             return (
-              <button
+              <div
                 key={idx}
-                onClick={() => handleVaccineClick(vaccine)}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                  isUnavailable
-                    ? 'bg-red-500/20 border border-red-300/30 hover:bg-red-500/30'
-                    : 'bg-white/10 border border-white/20 hover:bg-white/15'
+                className={`flex items-center justify-between px-3 py-2 rounded-lg border transition-all ${
+                  isRecorded
+                    ? 'bg-green-500/20 border-green-300/30'
+                    : isUnavailable
+                    ? 'bg-red-500/20 border-red-300/30'
+                    : 'bg-white/10 border-white/20'
                 }`}
               >
-                <p className="text-sm font-medium text-white truncate">
-                  {isUnavailable && '❌ '}{title}
-                </p>
-                {isUnavailable && vaccine?.warning && (
-                  <p className="text-xs text-red-100 mt-1">{vaccine.warning}</p>
-                )}
-              </button>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">
+                    {isRecorded && '✓ '}{isUnavailable && '❌ '}{vaccine.title}
+                  </p>
+                  {isUnavailable && vaccine.warning && (
+                    <p className="text-xs text-red-100 mt-1">{vaccine.warning}</p>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => handleOpenRecordModal(vaccine)}
+                  disabled={isButtonDisabled}
+                  className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+                    isRecorded
+                      ? 'bg-green-500/40 text-green-50 border border-green-300/50 cursor-default'
+                      : isUnavailable
+                      ? 'bg-red-500/30 text-red-50 border border-red-300/50 cursor-not-allowed opacity-60'
+                      : 'bg-white/20 text-white border border-white/30 hover:bg-white/30 active:bg-white/40'
+                  }`}
+                >
+                  {isRecorded ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      تم التسجيل
+                    </>
+                  ) : isUnavailable ? (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      غير متاح
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-3.5 h-3.5" />
+                      تم
+                    </>
+                  )}
+                </button>
+              </div>
             );
           })}
         </div>
       </div>
-
-      {childId && (
-        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-sm font-medium relative z-10">
-          <span>عرض التفاصيل الكاملة</span>
-          <ChevronLeft className="w-4 h-4" />
-        </div>
-      )}
     </div>
   );
 
-  if (childId) {
-    return (
-      <Link href={`/next-vaccine?childId=${childId}`} className="block hover:opacity-90 transition-opacity">
-        <CardContent />
-      </Link>
-    );
-  }
-
-  return <CardContent />;
+  return (
+    <>
+      <CardContent />
+      
+      {/* Record Vaccine Modal - Inline */}
+      <RecordVaccineModal
+        isOpen={showRecordModal}
+        onClose={() => {
+          setShowRecordModal(false);
+          setSelectedVaccineForRecord(null);
+        }}
+        childId={childId}
+        scheduleId={selectedVaccineForRecord?.scheduleId}
+        vaccineName={selectedVaccineForRecord?.title}
+        onSuccess={handleRecordSuccess}
+      />
+    </>
+  );
 };

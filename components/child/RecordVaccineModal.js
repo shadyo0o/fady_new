@@ -13,20 +13,36 @@ export default function RecordVaccineModal({ isOpen, onClose, childId, scheduleI
   const [office, setOffice] = useState(HEALTH_OFFICES[0].value);
   const [loading, setLoading] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen || !scheduleId) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!childId) {
+      showToast.error('معرف الطفل مفقود');
+      return;
+    }
+    
+    if (!scheduleId) {
+      showToast.error('معرف التطعيم المجدول مفقود');
+      return;
+    }
+
     setLoading(true);
     try {
       await api.post('/childs/recordVaccine', {
         childId,
-        scheduleId, // ID of the vaccine schedule item
+        scheduleId, // ID of the vaccine schedule item - ONLY this vaccine
         actualDate: date,
         office
       });
+      
       showToast.success('تم تسجيل التطعيم بنجاح ✅');
-      onSuccess();
+      
+      if (onSuccess && typeof onSuccess === 'function') {
+        onSuccess();
+      }
+      
       onClose();
     } catch (error) {
       console.error(error);
