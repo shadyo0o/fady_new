@@ -1,0 +1,15 @@
+import styles from './Button.module.css';
+
+export default function Button({ children, variant = 'primary', size = 'md', className = '', ...props }) {
+  // Variants: primary, secondary, outline, danger
+  // Sizes: sm, md, lg
+  
+  return (
+    <button 
+      className={`${styles.btn} ${styles[variant]} ${styles[size]} ${className}`} 
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Fady's Vaccines",
+  "short_name": "FadyApp",
+  "description": "Child vaccination tracking application",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#FDFDFD",
+  "theme_color": "#33AB98",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
