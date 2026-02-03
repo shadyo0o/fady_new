@@ -554,7 +554,7 @@
 
 'use client'
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Bell, Activity, UserCog } from "lucide-react";
+import { Plus, Bell, Activity, UserCog, Crown } from "lucide-react";
 import Link from "next/link";
 import MobileLayout from "@/components/layout/MobileLayout";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -808,6 +808,10 @@ export default function HomePage() {
   const nextVaccine = nextVaccineData || data?.nextVaccine;
   const announcements = data?.announcements || [];
   const firstChildName = children[0]?.name || "طفلك";
+  
+  // التحقق من حالة الاشتراك
+  const subscriptionEnd = user?.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+  const isSubscribed = (user?.isSubscribed === true) || (subscriptionEnd && subscriptionEnd.getTime() > Date.now());
 
   return (
     <MobileLayout dir="rtl">
@@ -912,6 +916,16 @@ export default function HomePage() {
             />
             <ActionLink href="/birth-certificate-steps" emoji="📜" title="شهادة الميلاد" desc="الأوراق والمواعيد" color="orange" />
             
+            {!isSubscribed && (
+              <ActionLink 
+                href="/subscription" 
+                emoji="👑" 
+                title="اشترك الآن" 
+                desc="تمتع بكافة المزايا" 
+                color="yellow" 
+              />
+            )}
+            
             <div className="col-span-2">
                 <OfficeSelector 
                   selectedOffice={selectedOffice}
@@ -932,7 +946,8 @@ function ActionLink({ href, emoji, title, desc, color }) {
     purple: "bg-purple-100",
     green: "bg-green-100",
     blue: "bg-blue-100",
-    orange: "bg-orange-100"
+    orange: "bg-orange-100",
+    yellow: "bg-yellow-100"
   };
   return (
     <Link href={href} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all">

@@ -80,8 +80,9 @@ export default function DashboardLayout({ children }) {
             className="fixed z-50 bottom-24 right-6 w-14 h-14 bg-[#25D366] hover:bg-[#1ebe57] text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group"
             title="تواصل معنا عبر واتساب"
           >
-            <div className="absolute -top-12 right-0 bg-white text-gray-800 text-[10px] font-bold px-2 py-1 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-100">
-              دعم فني واتساب
+            <div className="absolute -top-16 right-0 bg-white text-gray-800 text-[10px] sm:text-xs font-bold px-3 py-2 rounded-xl shadow-xl transition-all whitespace-nowrap border-2 border-[#33AB98]/20 flex items-center gap-2 animate-bounce-subtle">
+              <span className="flex-shrink-0">محتاج مساعدة؟ فريق فادي معاك للاستفسار🛡️</span>
+              <div className="absolute -bottom-2 right-5 w-4 h-4 bg-white border-r-2 border-b-2 border-[#33AB98]/20 rotate-45 transform translate-y-[-2px]"></div>
             </div>
             <svg 
               viewBox="0 0 24 24" 
