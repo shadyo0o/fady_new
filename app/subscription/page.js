@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import MobileLayout from "@/components/layout/MobileLayout";
 import api from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
-
+import Link from 'next/link';
 const features = [
   {
     icon: Shield,
