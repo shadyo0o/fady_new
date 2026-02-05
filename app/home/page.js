@@ -566,6 +566,7 @@ import api from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
 import OfficeSelector from "@/components/OfficeSelector";
 import NotificationButton from "@/components/NotificationButton";
+import Footer from "@/components/layout/Footer";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -815,7 +816,7 @@ export default function HomePage() {
 
   return (
     <MobileLayout dir="rtl">
-      <div className="min-h-screen pb-24 bg-white">
+      <div className="min-h-screen pb-4 bg-white">
         {/* Header */}
         <div className="bg-[#33AB98] px-5 pt-12 pb-6">
           <div className="flex items-center justify-between mb-5">
@@ -904,7 +905,7 @@ export default function HomePage() {
           </div>
 
           {/* Quick Actions Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-2">
             <ActionLink href="/schedule" emoji="📅" title="الجدول الزمني" desc="جدول التطعيمات" color="purple" />
             <ActionLink 
                 href={children.length > 0 ? `/childs/${children[0].id || children[0]._id}` : "/childs/add"} 
@@ -935,6 +936,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      <Footer />
       <BottomNav />
     </MobileLayout>
   );

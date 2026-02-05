@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail, Phone } from "lucide-react";
+import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail, Phone, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MobileLayout from "@/components/layout/MobileLayout";
@@ -15,6 +15,7 @@ const ProfilePage = () => {
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [notifications, setNotifications] = useState({
     push: true,
   });
@@ -50,7 +51,7 @@ const ProfilePage = () => {
       icon: Shield,
       title: "الخصوصية والأمان",
       subtitle: "أمان الحساب",
-      path: "/privacy",
+      onClick: () => setShowPrivacyModal(true),
     },
   ];
 
@@ -182,10 +183,10 @@ const ProfilePage = () => {
             {menuItems.map((item, index) => {
               const Icon = item.icon;
               return (
-                <Link
+                <div
                   key={index}
-                  href={item.path}
-                   className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0 border-gray-50 group"
+                  onClick={item.onClick}
+                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0 border-gray-50 group cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
                     <Icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
@@ -197,10 +198,11 @@ const ProfilePage = () => {
                     </p>
                   </div>
                   <ChevronLeft className="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition-colors" />
-                </Link>
+                </div>
               );
             })}
           </div>
+
 
           {/* Logout */}
           <button
@@ -213,7 +215,57 @@ const ProfilePage = () => {
         </div>
       </div>
 
+      {/* Privacy Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl w-full max-w-sm max-h-[80vh] overflow-y-auto shadow-2xl animate-scale-up">
+            <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between">
+              <h3 className="font-bold text-gray-800">الخصوصية والأمان</h3>
+              <button 
+                onClick={() => setShowPrivacyModal(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[#33AB98]">
+                  <Shield className="w-5 h-5" />
+                  <h4 className="font-bold text-sm">سياسة الخصوصية</h4>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  نلتزم بحماية خصوصية بيانات الأطفال (الاسم وتاريخ الميلاد) واستخدامها فقط لتنظيم جدول التطعيمات.
+                  لا نقوم بتخزين بيانات البطاقات البنكية؛ حيث تتم معالجة جميع المدفوعات بشكل مشفر عبر بوابة Paymob.
+                </p>
+              </div>
+
+              <div className="h-px bg-gray-50" />
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[#33AB98]">
+                  <CreditCard className="w-5 h-5" />
+                  <h4 className="font-bold text-sm">سياسة الاسترجاع</h4>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  قيمة الاشتراك 50 جنيهاً مصرياً لمدة 18 شهرًا.
+                  يرجى العلم أن هذا المبلغ غير مسترد بمجرد تفعيل مميزات الحساب (متابعة التطعيمات، التنبيهات، السجل التاريخي).
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setShowPrivacyModal(false)}
+                className="w-full h-12 bg-[#33AB98] text-white font-bold rounded-xl mt-4"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomNav />
+
     </MobileLayout>
   );
 };

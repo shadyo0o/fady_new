@@ -177,6 +177,12 @@ const SubscriptionPage = () => {
                   "احصلي على العرض الآن"
                 )}
               </Button>
+              <p className="text-[10px] text-gray-400 text-center px-6 leading-relaxed">
+                بإتمامك لعملية الدفع، أنت توافق على 
+                <Link href="/privacy" className="text-[#33AB98] mx-1">شروط الخدمة</Link> 
+                و 
+                <Link href="/refund" className="text-[#33AB98] mx-1">سياسة الاسترجاع</Link>.
+              </p>
             </>
           )}
 
