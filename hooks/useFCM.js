@@ -44,7 +44,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { messaging, getToken, onMessage } from '../lib/firebase';
+// استورد فقط المتغير المهيأ من ملفك
+import { messaging } from '../lib/firebase'; 
+// استورد الدوال التشغيلية من المكتبة الأم لفايربيز
+import { getToken, onMessage } from 'firebase/messaging'; 
 import api from '@/lib/api/client';
 
 export function useFCM() {
@@ -55,25 +58,35 @@ export function useFCM() {
       setPermission(Notification.permission);
       
       // مستمع للإشعارات والتطبيق مفتوح (Foreground)
+      // نتحقق من وجود messaging أولاً
       if (messaging) {
-        const unsubscribe = onMessage(messaging, (payload) => {
-          console.log('Message received in foreground:', payload);
-          // يمكنك هنا استخدام مكتبة مثل react-hot-toast لإظهار تنبيه داخلي
-        });
-        return () => unsubscribe();
+        try {
+          const unsubscribe = onMessage(messaging, (payload) => {
+            console.log('Message received in foreground:', payload);
+          });
+          return () => unsubscribe();
+        } catch (e) {
+          console.log("FCM onMessage Error:", e);
+        }
       }
     }
   }, []);
 
   const requestPermission = async () => {
-    if (!messaging || typeof window === 'undefined') return;
+    // التحقق من المتصفح والـ Messaging
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    
+    // الانتظار للتأكد من تهيئة messaging (لأنها تأخذ وقتاً في البداية)
+    if (!messaging) {
+       console.log("Waiting for messaging to initialize...");
+       return;
+    }
 
     try {
       const permissionStatus = await Notification.requestPermission();
       setPermission(permissionStatus);
 
       if (permissionStatus === 'granted') {
-        // تسجيل الـ Service Worker يدوياً لضمان استخراج التوكن في الـ PWA
         const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
         
         const token = await getToken(messaging, {
@@ -82,8 +95,7 @@ export function useFCM() {
         });
         
         if (token) {
-           console.log('FCM Token generated successfully');
-           // إرسال التوكن للباك إند (تأكد من أن المسار مطابق للـ API عندك)
+           console.log('FCM Token generated');
            await api.patch('/users/fcm-token', { token });
         }
       }
