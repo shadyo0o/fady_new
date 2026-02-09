@@ -77,9 +77,14 @@ messaging.onBackgroundMessage((payload) => {
     body: payload.notification?.body,
     icon: '/logo.png',
     badge: '/logo.png',
+    // نمط الاهتزاز: اهتزاز لـ 200ms، توقف لـ 100ms، ثم اهتزاز لـ 200ms
+    vibrate: [200, 100, 200],
     data: {
       url: payload.data?.childId ? `/childs/${payload.data.childId}` : '/home'
-    }
+    },
+    // لإجبار الهاتف على التنبيه حتى لو كان هناك إشعار سابق بنفس العنوان
+    renotify: true, 
+    tag: 'vaccine-reminder'
   };
 
   // هذا السطر يضمن ظهور الإشعار حتى لو المتصفح في وضع الخمول
