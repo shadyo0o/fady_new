@@ -88,7 +88,7 @@ const FadyStory = () => {
             </div>
             
             <p className="text-gray-600 leading-relaxed mb-4">
-              من كل اشتراك بقيمة <span className="font-bold text-green-600">60 جنيه</span>، 
+              من كل اشتراك بقيمة <span className="font-bold text-green-600">50 جنيه</span>، 
               يتم التبرع بجزء منه لدعم:
             </p>
             
