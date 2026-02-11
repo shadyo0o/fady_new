@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail, Phone, CreditCard } from "lucide-react";
+import { ArrowRight, User, Bell, Shield, LogOut, ChevronLeft, Stethoscope, Mail, Phone, CreditCard, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MobileLayout from "@/components/layout/MobileLayout";
@@ -79,8 +79,16 @@ const ProfilePage = () => {
 
           {/* Profile Info */}
           <div className="flex flex-col items-center relative z-10 text-center">
-            <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-xl border-4 border-white/20">
-              <User className="w-10 h-10 text-[#33AB98]" />
+            <div 
+              onClick={() => router.push('/edit-profile')}
+              className="relative group cursor-pointer active:scale-95 transition-all"
+            >
+              <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-xl border-4 border-white/20 group-hover:shadow-[#33AB98]/20 transition-all">
+                <User className="w-10 h-10 text-[#33AB98]" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-lg shadow-lg flex items-center justify-center border border-gray-100 group-hover:bg-[#33AB98] group-hover:text-white transition-all">
+                <Edit2 className="w-4 h-4 text-[#33AB98] group-hover:text-white" />
+              </div>
             </div>
             <h2 className="text-xl font-bold text-white mb-1">
               {profile?.name || user?.name || "سارة أحمد"}
@@ -185,7 +193,13 @@ const ProfilePage = () => {
               return (
                 <div
                   key={index}
-                  onClick={item.onClick}
+                  onClick={() => {
+                    if (item.path) {
+                      router.push(item.path);
+                    } else if (item.onClick) {
+                      item.onClick();
+                    }
+                  }}
                   className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0 border-gray-50 group cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
