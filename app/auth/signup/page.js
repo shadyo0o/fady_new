@@ -106,9 +106,10 @@ const SignupPage = () => {
               placeholder="البريد الإلكتروني"
               className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase() })}
               required
             />
+
           </div>
 
           <div className="relative">
