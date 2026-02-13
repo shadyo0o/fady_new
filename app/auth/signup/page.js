@@ -115,12 +115,13 @@ const SignupPage = () => {
             <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="tel"
-              placeholder="رقم الهاتف"
+              placeholder="رقم الهاتف -هذا الرقم هو وسيلة تفعيل اشتراكك في التطبيق (يرجي كتابة الرقم صحيح)"
               className="w-full pr-12 pl-4 h-14 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-[#33AB98] transition-all outline-none"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
             />
+            <p className="text-red-500 text-sm mt-1">يرجى التأكد من الدفع بنفس الرقم المسجل به في التطبيق لضمان تفعيل الاشتراك تلقائياً</p>
           </div>
 
           <div className="relative">
